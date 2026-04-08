@@ -7,7 +7,6 @@
 *{box-sizing:border-box;font-family:system-ui}
 body{margin:0;background:#f5f7ff;padding:10px}
 
-/* TOP */
 .top{display:flex;gap:6px;margin-bottom:10px}
 .top a{
   flex:1;text-align:center;padding:10px;border-radius:10px;
@@ -22,7 +21,6 @@ body{margin:0;background:#f5f7ff;padding:10px}
   background:#222;color:#fff;margin-bottom:10px;
 }
 
-/* SEARCH */
 .search input{
   width:100%;padding:10px;border-radius:10px;
   border:1px solid #ddd;font-size:14px;
@@ -38,7 +36,6 @@ body{margin:0;background:#f5f7ff;padding:10px}
   font-size:13px;cursor:pointer;
 }
 
-/* CARD */
 .card{
   background:#fff;border-radius:12px;padding:14px;
   box-shadow:0 6px 15px rgba(0,0,0,.08);
@@ -74,7 +71,6 @@ body{margin:0;background:#f5f7ff;padding:10px}
 }
 .status.done{background:#43e97b;color:#fff}
 
-/* TASK */
 .task-title{margin-top:10px;cursor:pointer;color:#4facfe}
 .task-list{display:none}
 .task-item{
@@ -82,18 +78,16 @@ body{margin:0;background:#f5f7ff;padding:10px}
   margin-top:5px;font-size:12px;
 }
 
-/* NAV */
 .nav{display:flex;margin-top:10px}
 .nav button{
   flex:1;margin:2px;padding:8px;border:none;
   border-radius:8px;background:#4facfe;color:#fff;
 }
 
-/* REKAP */
 table{
   width:100%;font-size:12px;border-collapse:collapse;
 }
-td,th{padding:6px;border-bottom:1px solid #eee;text-align:left}
+td,th{padding:6px;border-bottom:1px solid #eee}
 
 .red{color:red}
 .green{color:green}
@@ -123,7 +117,27 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyz2FWhSfAiP6xuSjgdDk1p
 
 let data=[],index=0,showPwd=false,showInfo=false;
 
-/* LOAD + SYNC */
+/* FORMAT TANGGAL */
+function formatTanggal(tgl){
+  if(!tgl) return "-";
+  const d = new Date(tgl);
+  if(isNaN(d)) return tgl;
+  return d.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+/* SELISIH HARI */
+function selisihHari(tgl){
+  if(!tgl) return 999;
+  const t1=new Date(tgl);
+  const t2=new Date();
+  return Math.floor((t2-t1)/(1000*60*60*24));
+}
+
+/* LOAD */
 fetch(API_URL)
 .then(r=>r.json())
 .then(r=>{
@@ -136,16 +150,9 @@ fetch(API_URL)
   render();
 });
 
-/* DATE */
-function today(){return new Date().toLocaleDateString("id-ID");}
+/* UTIL */
+function today(){return new Date().toISOString();}
 function key(nip){return "done_"+nip;}
-
-function selisihHari(tgl){
-  if(!tgl) return 999;
-  const t1=new Date(tgl.split("/").reverse().join("-"));
-  const t2=new Date();
-  return Math.floor((t2-t1)/(1000*60*60*24));
-}
 
 /* CLICK */
 function toggleDone(nip){
@@ -175,7 +182,6 @@ function search(v){
     .map(d=>`<div class="search-item" onclick="goTo('${d.nama}')">${d.nama}</div>`).join("");
 }
 
-/* NAV */
 function goTo(n){
   index=data.findIndex(d=>d.nama===n);
   document.getElementById("rekapBox").style.display="none";
@@ -197,8 +203,10 @@ function renderRekap(){
   <tr><th>No</th><th>Nama</th><th>Tgl</th></tr>
 
   ${data.map(d=>{
-    const tgl=getStatus(d.nip)||d.terakhir||"-";
-    const merah=selisihHari(tgl)>=6;
+    const raw=getStatus(d.nip)||d.terakhir||"-";
+    const tgl=formatTanggal(raw);
+    const merah=selisihHari(raw)>=6;
+
     return `
     <tr onclick="goTo('${d.nama}')" style="cursor:pointer">
       <td>${d.no}</td>
@@ -213,8 +221,9 @@ function renderRekap(){
 /* RENDER */
 function render(){
   const d=data[index];
-  const status=getStatus(d.nip);
-  const merah=selisihHari(status)>=6;
+  const raw=getStatus(d.nip);
+  const status=formatTanggal(raw);
+  const merah=selisihHari(raw)>=6;
 
   document.getElementById("app").innerHTML=`
   <div class="card">
@@ -240,10 +249,10 @@ function render(){
       </div>
     </div>
 
-    <div class="status ${status?'done':''}" 
+    <div class="status ${raw?'done':''}" 
     style="background:${merah?'#ff4d4d':''}"
     onclick="toggleDone('${d.nip}')">
-      ${status?"📅 Terakhir Input: "+status:"✔ Input hari ini"}
+      ${raw?"📅 Terakhir Input: "+status:"✔ Input hari ini"}
     </div>
 
     <div class="task-title" onclick="toggleTask()">📋 Task</div>
