@@ -2,60 +2,65 @@
 <html lang="id">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TIMAWAKNG</title>
 
 <style>
 *{box-sizing:border-box;font-family:system-ui}
 
 body{
   margin:0;
-  background:#f4f7ff;
-  padding:12px;
+  background:#f5f7ff;
+  padding:10px;
 }
 
-/* HEADER */
-h1{
+/* TOP BUTTON */
+.top{
+  display:flex;
+  gap:6px;
+  margin-bottom:10px;
+}
+
+.top a{
+  flex:1;
   text-align:center;
-  font-size:18px;
-  margin-bottom:12px;
+  padding:10px;
+  border-radius:10px;
+  background:#4facfe;
+  color:#fff;
+  text-decoration:none;
+  font-size:13px;
 }
 
 /* CARD */
 .card{
   background:#fff;
-  border-radius:14px;
+  border-radius:12px;
   padding:14px;
-  box-shadow:0 8px 20px rgba(0,0,0,.08);
+  box-shadow:0 6px 15px rgba(0,0,0,.08);
 }
 
-/* PROFILE */
+/* NAME */
 .name{
-  font-size:16px;
   font-weight:bold;
+  font-size:15px;
 }
 
 .nip{
-  font-size:13px;
+  font-size:12px;
   color:#666;
   display:flex;
   justify-content:space-between;
-  align-items:center;
   margin-top:4px;
 }
 
 /* PASSWORD */
-.pass-box{
-  margin-top:12px;
-  padding:10px;
+.pass{
+  margin-top:10px;
+  padding:8px;
   background:#eef3ff;
-  border-radius:10px;
-}
-
-.pass-row{
+  border-radius:8px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-top:6px;
 }
 
 /* BUTTON */
@@ -64,29 +69,37 @@ h1{
   background:#4facfe;
   color:#fff;
   border-radius:6px;
-  padding:5px 8px;
-  font-size:12px;
+  padding:4px 7px;
+  font-size:11px;
 }
 
 /* TASK */
-.task{
+.task-title{
   margin-top:10px;
+  font-size:13px;
+  font-weight:bold;
+  cursor:pointer;
+  color:#4facfe;
 }
 
-.task textarea{
-  width:100%;
-  border-radius:8px;
-  border:1px solid #ddd;
-  padding:6px;
-  font-size:12px;
+.task-list{
+  display:none;
+  margin-top:6px;
+}
+
+.task-item{
   background:#fafbff;
+  border:1px solid #eee;
+  padding:6px;
+  border-radius:6px;
+  font-size:12px;
+  margin-bottom:6px;
 }
 
 /* NAV */
 .nav{
   display:flex;
-  justify-content:space-between;
-  margin-top:12px;
+  margin-top:10px;
 }
 
 .nav button{
@@ -97,13 +110,6 @@ h1{
   border-radius:8px;
   background:#4facfe;
   color:#fff;
-}
-
-/* LOADING */
-.loading{
-  text-align:center;
-  margin-top:40px;
-  color:#555;
 }
 
 /* TOAST */
@@ -125,12 +131,13 @@ h1{
 
 <body>
 
-<h1>TIMAWAKNG</h1>
-
-<div id="app">
-  <div class="loading">Loading data...</div>
+<!-- TOP MENU -->
+<div class="top">
+  <a href="https://aktivitas.kalbarprov.go.id//engine/feature26/data-kinerja/add#TakeOff" target="_blank">INPUT</a>
+  <a href="https://epresensi.kalbarprov.go.id/login-general" target="_blank">JADWAL</a>
 </div>
 
+<div id="app">Loading...</div>
 <div id="toast" class="toast"></div>
 
 <script>
@@ -140,30 +147,16 @@ let data = [];
 let index = 0;
 let showPwd = false;
 
-/* =====================
-   LOAD DATA DARI API
-===================== */
+/* LOAD DATA */
 fetch(API_URL)
 .then(res => res.json())
 .then(res => {
   data = res;
   render();
-})
-.catch(err => {
-  document.getElementById("app").innerHTML =
-    "<div class='loading'>Gagal load data ❌</div>";
 });
 
-/* =====================
-   RENDER UI
-===================== */
+/* RENDER */
 function render(){
-  if(!data.length){
-    document.getElementById("app").innerHTML =
-      "<div class='loading'>Data kosong</div>";
-    return;
-  }
-
   const d = data[index];
 
   document.getElementById("app").innerHTML = `
@@ -172,26 +165,27 @@ function render(){
     <div class="name">${d.nama}</div>
 
     <div class="nip">
-      <span>NIP: ${d.nip}</span>
-      <button class="btn" onclick="copyText('${d.nip}')">Copy</button>
+      <span>${d.nip}</span>
+      <button class="btn" onclick="copy('${d.nip}')">Copy</button>
     </div>
 
-    <div class="pass-box">
-      <b>Password</b>
-      <div class="pass-row">
-        <span>${showPwd ? d.password : "••••••"}</span>
-        <div>
-          <button class="btn" onclick="togglePwd()">👁</button>
-          <button class="btn" onclick="copyText('${d.password}')">📋</button>
-        </div>
+    <div class="pass">
+      <span>${showPwd ? d.password : "••••••"}</span>
+      <div>
+        <button class="btn" onclick="togglePwd()">👁</button>
+        <button class="btn" onclick="copy('${d.password}')">📋</button>
       </div>
     </div>
 
-    ${task("Task 1", d.task1)}
-    ${task("Task 2", d.task2)}
-    ${task("Task 3", d.task3)}
-    ${task("Task 4", d.task4)}
-    ${task("Task 5", d.task5)}
+    <div class="task-title" onclick="toggleTask()">📋 Task</div>
+
+    <div id="taskBox" class="task-list">
+      ${task(d.task1)}
+      ${task(d.task2)}
+      ${task(d.task3)}
+      ${task(d.task4)}
+      ${task(d.task5)}
+    </div>
 
     <div class="nav">
       <button onclick="prev()">⬅</button>
@@ -202,21 +196,19 @@ function render(){
   `;
 }
 
-/* =====================
-   TASK
-===================== */
-function task(label, val){
+/* TASK ITEM */
+function task(val){
   if(!val) return "";
-  return `
-  <div class="task">
-    <b>${label}</b>
-    <textarea readonly>${val}</textarea>
-  </div>`;
+  return `<div class="task-item" onclick="copy('${val}')">${val}</div>`;
 }
 
-/* =====================
-   NAVIGATION
-===================== */
+/* TOGGLE TASK */
+function toggleTask(){
+  const el = document.getElementById("taskBox");
+  el.style.display = el.style.display==="block" ? "none" : "block";
+}
+
+/* NAV */
 function next(){
   if(index < data.length-1){
     index++;
@@ -235,25 +227,19 @@ function prev(){
   }
 }
 
-/* =====================
-   PASSWORD
-===================== */
+/* PASSWORD */
 function togglePwd(){
   showPwd = !showPwd;
   render();
 }
 
-/* =====================
-   COPY
-===================== */
-function copyText(text){
+/* COPY */
+function copy(text){
   navigator.clipboard.writeText(text);
-  toast("Berhasil dicopy");
+  toast("Copied");
 }
 
-/* =====================
-   TOAST
-===================== */
+/* TOAST */
 function toast(msg){
   const t = document.getElementById("toast");
   t.innerText = msg;
