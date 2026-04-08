@@ -12,7 +12,7 @@ body{
   padding:10px;
 }
 
-/* TOP BUTTON */
+/* TOP */
 .top{
   display:flex;
   gap:6px;
@@ -34,10 +34,6 @@ body{
 .top a:nth-child(3){background:#f093fb;}
 
 /* SEARCH */
-.search{
-  margin-bottom:10px;
-}
-
 .search input{
   width:100%;
   padding:10px;
@@ -62,10 +58,6 @@ body{
   cursor:pointer;
 }
 
-.search-item:hover{
-  background:#eef3ff;
-}
-
 /* CARD */
 .card{
   background:#fff;
@@ -74,7 +66,21 @@ body{
   box-shadow:0 6px 15px rgba(0,0,0,.08);
 }
 
-/* NO BADGE */
+/* HIDDEN HEADER */
+.hidden-box{
+  text-align:center;
+  padding:10px;
+  background:#eef3ff;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:13px;
+}
+
+/* SHOW DATA */
+.show-box{
+  margin-bottom:10px;
+}
+
 .no{
   width:30px;
   height:30px;
@@ -85,22 +91,15 @@ body{
   align-items:center;
   justify-content:center;
   font-size:13px;
-  font-weight:bold;
   margin-bottom:6px;
 }
 
-/* NAME */
-.name{
-  font-weight:bold;
-  font-size:15px;
-}
-
+.name{font-weight:bold}
 .nip{
   font-size:12px;
   color:#666;
   display:flex;
   justify-content:space-between;
-  margin-top:4px;
 }
 
 /* PASSWORD */
@@ -111,7 +110,6 @@ body{
   border-radius:8px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
 }
 
 /* BUTTON */
@@ -134,33 +132,22 @@ body{
   cursor:pointer;
   background:#ddd;
 }
-
-.status.done{
-  background:#43e97b;
-  color:#fff;
-}
+.status.done{background:#43e97b;color:#fff}
 
 /* TASK */
 .task-title{
   margin-top:10px;
-  font-size:13px;
-  font-weight:bold;
   cursor:pointer;
   color:#4facfe;
 }
 
-.task-list{
-  display:none;
-  margin-top:6px;
-}
-
+.task-list{display:none}
 .task-item{
   background:#fafbff;
-  border:1px solid #eee;
   padding:6px;
   border-radius:6px;
+  margin-top:5px;
   font-size:12px;
-  margin-bottom:6px;
 }
 
 /* NAV */
@@ -190,7 +177,6 @@ body{
   padding:8px 14px;
   border-radius:20px;
   opacity:0;
-  transition:.3s;
 }
 .toast.show{opacity:1}
 </style>
@@ -209,102 +195,80 @@ body{
   <div id="searchList" class="search-list"></div>
 </div>
 
-<div id="app">Loading...</div>
+<div id="app"></div>
 <div id="toast" class="toast"></div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzA3HAKr4ALmfHT0hpp3NCeuyp-P5lpZaczMOLyqVX8PZbblJPR7X4ksDvrOSAAQD3JWQ/exec";
 
-let data = [];
-let index = 0;
-let showPwd = false;
+let data=[], index=0, showPwd=false, showInfo=false;
 
 /* LOAD */
 fetch(API_URL)
-.then(res => res.json())
-.then(res => {
-  data = res;
-  render();
-});
+.then(r=>r.json())
+.then(r=>{data=r;render();});
 
 /* DATE */
-function today(){
-  return new Date().toLocaleDateString("id-ID");
-}
-
-/* STORAGE */
-function key(nip){ return "done_"+nip; }
+function today(){return new Date().toLocaleDateString("id-ID");}
+function key(nip){return "done_"+nip;}
 
 function toggleDone(nip){
-  const k = key(nip);
-  if(localStorage.getItem(k)){
-    localStorage.removeItem(k);
-  } else {
-    localStorage.setItem(k, today());
-  }
+  const k=key(nip);
+  localStorage.getItem(k)?localStorage.removeItem(k):localStorage.setItem(k,today());
   render();
 }
 
-function getStatus(nip){
-  return localStorage.getItem(key(nip));
-}
+function getStatus(nip){return localStorage.getItem(key(nip));}
 
 /* SEARCH */
-function search(val){
-  val = val.toLowerCase();
-  const list = document.getElementById("searchList");
-
-  if(!val){
-    list.innerHTML = "";
-    return;
-  }
-
-  const filtered = data.filter(d => d.nama.toLowerCase().includes(val));
-
-  list.innerHTML = filtered.map(d => `
-    <div class="search-item" onclick="selectName('${d.nama}')">
-      ${d.nama}
-    </div>
-  `).join("");
+function search(v){
+  v=v.toLowerCase();
+  const list=document.getElementById("searchList");
+  if(!v){list.innerHTML="";return;}
+  list.innerHTML=data.filter(d=>d.nama.toLowerCase().includes(v))
+    .map(d=>`<div class="search-item" onclick="selectName('${d.nama}')">${d.nama}</div>`).join("");
 }
-
-function selectName(nama){
-  index = data.findIndex(d => d.nama === nama);
-  document.getElementById("searchList").innerHTML = "";
+function selectName(n){
+  index=data.findIndex(d=>d.nama===n);
+  document.getElementById("searchList").innerHTML="";
   render();
 }
 
 /* RENDER */
 function render(){
-  const d = data[index];
-  const status = getStatus(d.nip);
+  const d=data[index];
+  const status=getStatus(d.nip);
 
-  document.getElementById("app").innerHTML = `
+  document.getElementById("app").innerHTML=`
   <div class="card">
 
-    <div class="no">${d.no}</div>
-
-    <div class="name">${d.nama}</div>
-
-    <div class="nip">
-      <span>${d.nip}</span>
-      <button class="btn" onclick="copy('${d.nip}')">Copy</button>
+    <div class="hidden-box" onclick="toggleInfo()">
+      ${showInfo ? "Sembunyikan Info" : "👁 Tampilkan Data"}
     </div>
 
+    ${showInfo?`
+    <div class="show-box">
+      <div class="no">${d.no}</div>
+      <div class="name">${d.nama}</div>
+      <div class="nip">
+        <span>${d.nip}</span>
+        <button class="btn" onclick="copy('${d.nip}')">Copy</button>
+      </div>
+    </div>`:""}
+
     <div class="pass">
-      <span>${showPwd ? d.password : "••••••"}</span>
+      <span>${showPwd?d.password:"••••••"}</span>
       <div>
         <button class="btn" onclick="togglePwd()">👁</button>
         <button class="btn" onclick="copy('${d.password}')">📋</button>
       </div>
     </div>
 
-    <div class="status ${status ? 'done' : ''}" onclick="toggleDone('${d.nip}')">
-      ${status ? "✔ "+status : "✔ Tandai selesai"}
+    <div class="status ${status?'done':''}" onclick="toggleDone('${d.nip}')">
+      ${status?"✔ "+status:"✔ Tandai selesai"}
     </div>
 
     <div class="task-title" onclick="toggleTask()">📋 Task</div>
-
     <div id="taskBox" class="task-list">
       ${task(d.task1)}
       ${task(d.task2)}
@@ -318,38 +282,39 @@ function render(){
       <button onclick="next()">➡</button>
     </div>
 
-  </div>
-  `;
+  </div>`;
 }
+
+/* TOGGLE INFO */
+function toggleInfo(){showInfo=!showInfo;render();}
 
 /* TASK */
-function task(val){
-  if(!val) return "";
-  return `<div class="task-item" onclick="copy('${val}')">${val}</div>`;
+function task(v){
+  if(!v)return"";
+  return `<div class="task-item" onclick="copy('${v}')">${v}</div>`;
 }
-
 function toggleTask(){
-  const el = document.getElementById("taskBox");
-  el.style.display = el.style.display==="block" ? "none" : "block";
+  const e=document.getElementById("taskBox");
+  e.style.display=e.style.display==="block"?"none":"block";
 }
 
 /* NAV */
-function next(){ if(index < data.length-1){ index++; render(); } }
-function prev(){ if(index > 0){ index--; render(); } }
+function next(){if(index<data.length-1){index++;render();}}
+function prev(){if(index>0){index--;render();}}
 
 /* PASSWORD */
-function togglePwd(){ showPwd=!showPwd; render(); }
+function togglePwd(){showPwd=!showPwd;render();}
 
 /* COPY */
-function copy(text){
-  navigator.clipboard.writeText(text);
+function copy(t){
+  navigator.clipboard.writeText(t);
   toast("Copied");
 }
 
 /* TOAST */
-function toast(msg){
+function toast(m){
   const t=document.getElementById("toast");
-  t.innerText=msg;
+  t.innerText=m;
   t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),1500);
 }
