@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIMAWAKNG</title>
+
+<style>
+*{box-sizing:border-box;font-family:system-ui}
+
+body{
+  margin:0;
+  background:#f4f7ff;
+  padding:12px;
+}
+
+/* HEADER */
+h1{
+  text-align:center;
+  font-size:18px;
+  margin-bottom:12px;
+}
+
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
+/* PROFILE */
+.name{
+  font-size:16px;
+  font-weight:bold;
+}
+
+.nip{
+  font-size:13px;
+  color:#666;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:4px;
+}
+
+/* PASSWORD */
+.pass-box{
+  margin-top:12px;
+  padding:10px;
+  background:#eef3ff;
+  border-radius:10px;
+}
+
+.pass-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:6px;
+}
+
+/* BUTTON */
+.btn{
+  border:none;
+  background:#4facfe;
+  color:#fff;
+  border-radius:6px;
+  padding:5px 8px;
+  font-size:12px;
+}
+
+/* TASK */
+.task{
+  margin-top:10px;
+}
+
+.task textarea{
+  width:100%;
+  border-radius:8px;
+  border:1px solid #ddd;
+  padding:6px;
+  font-size:12px;
+  background:#fafbff;
+}
+
+/* NAV */
+.nav{
+  display:flex;
+  justify-content:space-between;
+  margin-top:12px;
+}
+
+.nav button{
+  flex:1;
+  margin:2px;
+  padding:8px;
+  border:none;
+  border-radius:8px;
+  background:#4facfe;
+  color:#fff;
+}
+
+/* LOADING */
+.loading{
+  text-align:center;
+  margin-top:40px;
+  color:#555;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#333;
+  color:#fff;
+  padding:8px 14px;
+  border-radius:20px;
+  opacity:0;
+  transition:.3s;
+}
+.toast.show{opacity:1}
+</style>
+</head>
+
+<body>
+
+<h1>TIMAWAKNG</h1>
+
+<div id="app">
+  <div class="loading">Loading data...</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzA3HAKr4ALmfHT0hpp3NCeuyp-P5lpZaczMOLyqVX8PZbblJPR7X4ksDvrOSAAQD3JWQ/exec";
+
+let data = [];
+let index = 0;
+let showPwd = false;
+
+/* =====================
+   LOAD DATA DARI API
+===================== */
+fetch(API_URL)
+.then(res => res.json())
+.then(res => {
+  data = res;
+  render();
+})
+.catch(err => {
+  document.getElementById("app").innerHTML =
+    "<div class='loading'>Gagal load data ❌</div>";
+});
+
+/* =====================
+   RENDER UI
+===================== */
+function render(){
+  if(!data.length){
+    document.getElementById("app").innerHTML =
+      "<div class='loading'>Data kosong</div>";
+    return;
+  }
+
+  const d = data[index];
+
+  document.getElementById("app").innerHTML = `
+  <div class="card">
+
+    <div class="name">${d.nama}</div>
+
+    <div class="nip">
+      <span>NIP: ${d.nip}</span>
+      <button class="btn" onclick="copyText('${d.nip}')">Copy</button>
+    </div>
+
+    <div class="pass-box">
+      <b>Password</b>
+      <div class="pass-row">
+        <span>${showPwd ? d.password : "••••••"}</span>
+        <div>
+          <button class="btn" onclick="togglePwd()">👁</button>
+          <button class="btn" onclick="copyText('${d.password}')">📋</button>
+        </div>
+      </div>
+    </div>
+
+    ${task("Task 1", d.task1)}
+    ${task("Task 2", d.task2)}
+    ${task("Task 3", d.task3)}
+    ${task("Task 4", d.task4)}
+    ${task("Task 5", d.task5)}
+
+    <div class="nav">
+      <button onclick="prev()">⬅</button>
+      <button onclick="next()">➡</button>
+    </div>
+
+  </div>
+  `;
+}
+
+/* =====================
+   TASK
+===================== */
+function task(label, val){
+  if(!val) return "";
+  return `
+  <div class="task">
+    <b>${label}</b>
+    <textarea readonly>${val}</textarea>
+  </div>`;
+}
+
+/* =====================
+   NAVIGATION
+===================== */
+function next(){
+  if(index < data.length-1){
+    index++;
+    render();
+  } else {
+    toast("Data terakhir");
+  }
+}
+
+function prev(){
+  if(index > 0){
+    index--;
+    render();
+  } else {
+    toast("Data pertama");
+  }
+}
+
+/* =====================
+   PASSWORD
+===================== */
+function togglePwd(){
+  showPwd = !showPwd;
+  render();
+}
+
+/* =====================
+   COPY
+===================== */
+function copyText(text){
+  navigator.clipboard.writeText(text);
+  toast("Berhasil dicopy");
+}
+
+/* =====================
+   TOAST
+===================== */
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.innerText = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),1500);
+}
+</script>
+
+</body>
+</html>
