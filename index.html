@@ -30,6 +30,39 @@ body{
   font-size:13px;
 }
 
+/* SEARCH */
+.search{
+  margin-bottom:10px;
+}
+
+.search input{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  font-size:14px;
+}
+
+.search-list{
+  background:#fff;
+  border-radius:10px;
+  margin-top:4px;
+  max-height:200px;
+  overflow:auto;
+  box-shadow:0 5px 15px rgba(0,0,0,.1);
+}
+
+.search-item{
+  padding:8px;
+  border-bottom:1px solid #eee;
+  font-size:13px;
+  cursor:pointer;
+}
+
+.search-item:hover{
+  background:#eef3ff;
+}
+
 /* CARD */
 .card{
   background:#fff;
@@ -131,10 +164,16 @@ body{
 
 <body>
 
-<!-- TOP MENU -->
+<!-- TOP -->
 <div class="top">
   <a href="https://aktivitas.kalbarprov.go.id//engine/feature26/data-kinerja/add#TakeOff" target="_blank">INPUT</a>
   <a href="https://epresensi.kalbarprov.go.id/login-general" target="_blank">JADWAL</a>
+</div>
+
+<!-- SEARCH -->
+<div class="search">
+  <input type="text" placeholder="Cari nama..." oninput="search(this.value)">
+  <div id="searchList" class="search-list"></div>
 </div>
 
 <div id="app">Loading...</div>
@@ -147,13 +186,39 @@ let data = [];
 let index = 0;
 let showPwd = false;
 
-/* LOAD DATA */
+/* LOAD */
 fetch(API_URL)
 .then(res => res.json())
 .then(res => {
   data = res;
   render();
 });
+
+/* SEARCH */
+function search(val){
+  val = val.toLowerCase();
+  const list = document.getElementById("searchList");
+
+  if(!val){
+    list.innerHTML = "";
+    return;
+  }
+
+  const filtered = data.filter(d => d.nama.toLowerCase().includes(val));
+
+  list.innerHTML = filtered.map(d => `
+    <div class="search-item" onclick="selectName('${d.nama}')">
+      ${d.nama}
+    </div>
+  `).join("");
+}
+
+/* SELECT */
+function selectName(nama){
+  index = data.findIndex(d => d.nama === nama);
+  document.getElementById("searchList").innerHTML = "";
+  render();
+}
 
 /* RENDER */
 function render(){
@@ -196,42 +261,23 @@ function render(){
   `;
 }
 
-/* TASK ITEM */
+/* TASK */
 function task(val){
   if(!val) return "";
   return `<div class="task-item" onclick="copy('${val}')">${val}</div>`;
 }
 
-/* TOGGLE TASK */
 function toggleTask(){
   const el = document.getElementById("taskBox");
   el.style.display = el.style.display==="block" ? "none" : "block";
 }
 
 /* NAV */
-function next(){
-  if(index < data.length-1){
-    index++;
-    render();
-  } else {
-    toast("Data terakhir");
-  }
-}
-
-function prev(){
-  if(index > 0){
-    index--;
-    render();
-  } else {
-    toast("Data pertama");
-  }
-}
+function next(){ if(index < data.length-1){ index++; render(); } }
+function prev(){ if(index > 0){ index--; render(); } }
 
 /* PASSWORD */
-function togglePwd(){
-  showPwd = !showPwd;
-  render();
-}
+function togglePwd(){ showPwd=!showPwd; render(); }
 
 /* COPY */
 function copy(text){
@@ -241,8 +287,8 @@ function copy(text){
 
 /* TOAST */
 function toast(msg){
-  const t = document.getElementById("toast");
-  t.innerText = msg;
+  const t=document.getElementById("toast");
+  t.innerText=msg;
   t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),1500);
 }
