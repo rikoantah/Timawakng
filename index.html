@@ -74,6 +74,21 @@ body{
   box-shadow:0 6px 15px rgba(0,0,0,.08);
 }
 
+/* NO BADGE */
+.no{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:#4facfe;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  font-weight:bold;
+  margin-bottom:6px;
+}
+
 /* NAME */
 .name{
   font-weight:bold;
@@ -212,18 +227,14 @@ fetch(API_URL)
   render();
 });
 
-/* FORMAT DATE */
+/* DATE */
 function today(){
-  const d = new Date();
-  return d.toLocaleDateString("id-ID");
+  return new Date().toLocaleDateString("id-ID");
 }
 
-/* STORAGE KEY */
-function key(nip){
-  return "done_"+nip;
-}
+/* STORAGE */
+function key(nip){ return "done_"+nip; }
 
-/* TOGGLE STATUS */
 function toggleDone(nip){
   const k = key(nip);
   if(localStorage.getItem(k)){
@@ -234,7 +245,6 @@ function toggleDone(nip){
   render();
 }
 
-/* GET STATUS */
 function getStatus(nip){
   return localStorage.getItem(key(nip));
 }
@@ -272,6 +282,8 @@ function render(){
   document.getElementById("app").innerHTML = `
   <div class="card">
 
+    <div class="no">${d.no}</div>
+
     <div class="name">${d.nama}</div>
 
     <div class="nip">
@@ -288,7 +300,7 @@ function render(){
     </div>
 
     <div class="status ${status ? 'done' : ''}" onclick="toggleDone('${d.nip}')">
-      ${status ? "✔ Sudah dikerjakan ("+status+")" : "✔ Tandai selesai hari ini"}
+      ${status ? "✔ "+status : "✔ Tandai selesai"}
     </div>
 
     <div class="task-title" onclick="toggleTask()">📋 Task</div>
