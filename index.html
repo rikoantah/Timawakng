@@ -5,178 +5,97 @@
 
 <style>
 *{box-sizing:border-box;font-family:system-ui}
-
-body{
-  margin:0;
-  background:#f5f7ff;
-  padding:10px;
-}
+body{margin:0;background:#f5f7ff;padding:10px}
 
 /* TOP */
-.top{
-  display:flex;
-  gap:6px;
-  margin-bottom:10px;
-}
-
+.top{display:flex;gap:6px;margin-bottom:10px}
 .top a{
-  flex:1;
-  text-align:center;
-  padding:10px;
-  border-radius:10px;
-  color:#fff;
-  text-decoration:none;
-  font-size:13px;
+  flex:1;text-align:center;padding:10px;border-radius:10px;
+  color:#fff;text-decoration:none;font-size:13px;
 }
-
 .top a:nth-child(1){background:#4facfe;}
 .top a:nth-child(2){background:#43e97b;}
 .top a:nth-child(3){background:#f093fb;}
 
-/* SEARCH */
 .search input{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ddd;
-  font-size:14px;
+  width:100%;padding:10px;border-radius:10px;
+  border:1px solid #ddd;font-size:14px;
 }
 
 .search-list{
-  background:#fff;
-  border-radius:10px;
-  margin-top:4px;
-  max-height:200px;
-  overflow:auto;
+  background:#fff;border-radius:10px;margin-top:4px;
+  max-height:200px;overflow:auto;
   box-shadow:0 5px 15px rgba(0,0,0,.1);
 }
 
 .search-item{
-  padding:8px;
-  border-bottom:1px solid #eee;
-  font-size:13px;
-  cursor:pointer;
+  padding:8px;border-bottom:1px solid #eee;
+  font-size:13px;cursor:pointer;
 }
 
-/* CARD */
 .card{
-  background:#fff;
-  border-radius:12px;
-  padding:14px;
+  background:#fff;border-radius:12px;padding:14px;
   box-shadow:0 6px 15px rgba(0,0,0,.08);
 }
 
-/* HIDDEN HEADER */
 .hidden-box{
-  text-align:center;
-  padding:10px;
-  background:#eef3ff;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:13px;
+  text-align:center;padding:10px;background:#eef3ff;
+  border-radius:10px;cursor:pointer;font-size:13px;
 }
 
-/* SHOW DATA */
-.show-box{
-  margin-bottom:10px;
-}
+.show-box{margin-bottom:10px}
 
 .no{
-  width:30px;
-  height:30px;
-  border-radius:50%;
-  background:#4facfe;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:13px;
-  margin-bottom:6px;
+  width:30px;height:30px;border-radius:50%;
+  background:#4facfe;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;margin-bottom:6px;
 }
 
 .name{font-weight:bold}
+
 .nip{
-  font-size:12px;
-  color:#666;
-  display:flex;
-  justify-content:space-between;
+  font-size:12px;color:#666;
+  display:flex;justify-content:space-between;
 }
 
-/* PASSWORD */
 .pass{
-  margin-top:10px;
-  padding:8px;
-  background:#eef3ff;
-  border-radius:8px;
-  display:flex;
-  justify-content:space-between;
+  margin-top:10px;padding:8px;background:#eef3ff;
+  border-radius:8px;display:flex;justify-content:space-between;
 }
 
-/* BUTTON */
 .btn{
-  border:none;
-  background:#4facfe;
-  color:#fff;
-  border-radius:6px;
-  padding:4px 7px;
-  font-size:11px;
+  border:none;background:#4facfe;color:#fff;
+  border-radius:6px;padding:4px 7px;font-size:11px;
 }
 
-/* STATUS */
 .status{
-  margin-top:10px;
-  padding:8px;
-  border-radius:8px;
-  text-align:center;
-  font-size:13px;
-  cursor:pointer;
-  background:#ddd;
+  margin-top:10px;padding:8px;border-radius:8px;
+  text-align:center;font-size:13px;cursor:pointer;background:#ddd;
 }
 .status.done{background:#43e97b;color:#fff}
 
-/* TASK */
-.task-title{
-  margin-top:10px;
-  cursor:pointer;
-  color:#4facfe;
-}
+.task-title{margin-top:10px;cursor:pointer;color:#4facfe}
 
 .task-list{display:none}
+
 .task-item{
-  background:#fafbff;
-  padding:6px;
-  border-radius:6px;
-  margin-top:5px;
-  font-size:12px;
+  background:#fafbff;padding:6px;border-radius:6px;
+  margin-top:5px;font-size:12px;
 }
 
-/* NAV */
-.nav{
-  display:flex;
-  margin-top:10px;
-}
+.nav{display:flex;margin-top:10px}
 
 .nav button{
-  flex:1;
-  margin:2px;
-  padding:8px;
-  border:none;
-  border-radius:8px;
-  background:#4facfe;
-  color:#fff;
+  flex:1;margin:2px;padding:8px;border:none;
+  border-radius:8px;background:#4facfe;color:#fff;
 }
 
-/* TOAST */
 .toast{
-  position:fixed;
-  bottom:20px;
-  left:50%;
+  position:fixed;bottom:20px;left:50%;
   transform:translateX(-50%);
-  background:#333;
-  color:#fff;
-  padding:8px 14px;
-  border-radius:20px;
-  opacity:0;
+  background:#333;color:#fff;
+  padding:8px 14px;border-radius:20px;opacity:0;
 }
 .toast.show{opacity:1}
 </style>
@@ -199,22 +118,46 @@ body{
 <div id="toast" class="toast"></div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzA3HAKr4ALmfHT0hpp3NCeuyp-P5lpZaczMOLyqVX8PZbblJPR7X4ksDvrOSAAQD3JWQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyD1zg4moKwzZWHirADNQVxRsPHysK_l0ck99ABV6rh5TzoDAdGPhnPZx1Sdm3BCSCXbA/exec";
 
 let data=[], index=0, showPwd=false, showInfo=false;
 
-/* LOAD */
+/* LOAD + SYNC */
 fetch(API_URL)
 .then(r=>r.json())
-.then(r=>{data=r;render();});
+.then(r=>{
+  data=r;
+
+  // 🔥 sync dari kolom L
+  data.forEach(d=>{
+    if(d.terakhir){
+      localStorage.setItem("done_"+d.nip,d.terakhir);
+    }
+  });
+
+  render();
+});
 
 /* DATE */
 function today(){return new Date().toLocaleDateString("id-ID");}
 function key(nip){return "done_"+nip;}
 
+/* CLICK */
 function toggleDone(nip){
-  const k=key(nip);
-  localStorage.getItem(k)?localStorage.removeItem(k):localStorage.setItem(k,today());
+  const tgl=today();
+
+  localStorage.setItem(key(nip),tgl);
+
+  // 🔥 kirim ke Google Sheets
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      nip:nip,
+      tanggal:tgl,
+      password:"timawakng"
+    })
+  });
+
   render();
 }
 
@@ -228,6 +171,7 @@ function search(v){
   list.innerHTML=data.filter(d=>d.nama.toLowerCase().includes(v))
     .map(d=>`<div class="search-item" onclick="selectName('${d.nama}')">${d.nama}</div>`).join("");
 }
+
 function selectName(n){
   index=data.findIndex(d=>d.nama===n);
   document.getElementById("searchList").innerHTML="";
@@ -265,10 +209,11 @@ function render(){
     </div>
 
     <div class="status ${status?'done':''}" onclick="toggleDone('${d.nip}')">
-      ${status?"✔ "+status:"✔ Tandai selesai"}
+      ${status?"📅 Terakhir Input: "+status:"✔ Input hari ini"}
     </div>
 
     <div class="task-title" onclick="toggleTask()">📋 Task</div>
+
     <div id="taskBox" class="task-list">
       ${task(d.task1)}
       ${task(d.task2)}
@@ -293,6 +238,7 @@ function task(v){
   if(!v)return"";
   return `<div class="task-item" onclick="copy('${v}')">${v}</div>`;
 }
+
 function toggleTask(){
   const e=document.getElementById("taskBox");
   e.style.display=e.style.display==="block"?"none":"block";
