@@ -142,13 +142,11 @@ fetch(API_URL)
 
 /* UTIL */
 function now(){
-  let d=new Date();
-  return d.toISOString();
+  return new Date().toISOString();
 }
 function format(t){
   if(!t)return "-";
-  let d=new Date(t);
-  return d.toLocaleString("id-ID");
+  return new Date(t).toLocaleString("id-ID");
 }
 function todayOnly(){
   return new Date().toISOString().split("T")[0];
@@ -162,11 +160,10 @@ function copyText(text,el){
   setTimeout(()=>el.innerHTML=old,1200);
 }
 
-/* ✅ STATUS (INI YANG DIPERBAIKI) */
+/* ✅ STATUS (FULL SERVER BASED) */
 function toggleDone(nip){
   let t = now();
 
-  // kirim ke Google Sheet (pakai format lama)
   fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({
@@ -174,16 +171,14 @@ function toggleDone(nip){
       tanggal:t,
       password:"timawakng"
     })
-  });
-
-  // simpan lokal (biar langsung berubah)
-  localStorage.setItem("done_"+nip,t);
-
-  render();
+  })
+  .then(()=>location.reload());
 }
 
+/* 🔥 AMBIL DARI SHEET */
 function getStatus(nip){
-  return localStorage.getItem("done_"+nip);
+  let d = data.find(x=>x.nip==nip);
+  return d ? d.terakhir : null;
 }
 
 /* SEARCH */
@@ -213,7 +208,7 @@ function renderRekap(){
   <table>
   <tr><th>No</th><th>Nama</th><th>Status</th></tr>
   ${data.map(d=>{
-    let t=getStatus(d.nip);
+    let t=d.terakhir;
     let isToday=t && t.startsWith(todayOnly());
     return `
     <tr onclick="goTo('${d.nama}')" class="${isToday?'row-today':''}">
@@ -228,7 +223,7 @@ function renderRekap(){
 /* RENDER */
 function render(){
   let d=data[index];
-  let t=getStatus(d.nip);
+  let t=d.terakhir;
   let isToday=t && t.startsWith(todayOnly());
 
   let statusClass="old";
