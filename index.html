@@ -2,23 +2,20 @@
 <html lang="id">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
 *{box-sizing:border-box;font-family:system-ui}
 body{margin:0;background:#f4f6ff;padding:12px}
 
-/* TOP MENU */
+/* TOP */
 .top{display:flex;gap:8px;margin-bottom:12px}
 .top a{
   flex:1;text-align:center;padding:10px;border-radius:12px;
-  color:#fff;text-decoration:none;font-size:13px;
-  font-weight:600;
+  color:#fff;text-decoration:none;font-size:13px;font-weight:600;
 }
 .top a:nth-child(1){background:#4facfe;}
 .top a:nth-child(2){background:#43e97b;}
 .top a:nth-child(3){background:#f093fb;}
 
-/* BUTTON */
 .btn-rekap{
   width:100%;padding:12px;border:none;border-radius:12px;
   background:#222;color:#fff;margin-bottom:10px;font-weight:600;
@@ -35,7 +32,7 @@ body{margin:0;background:#f4f6ff;padding:12px}
 }
 .search-item{
   padding:10px;border-bottom:1px solid #eee;
-  font-size:14px;cursor:pointer;
+  cursor:pointer;
 }
 
 /* CARD */
@@ -44,8 +41,14 @@ body{margin:0;background:#f4f6ff;padding:12px}
   box-shadow:0 8px 20px rgba(0,0,0,.08);
 }
 
+.hide-btn{
+  margin-bottom:8px;
+  background:#000;color:#fff;
+  border:none;padding:6px 10px;border-radius:8px;
+}
+
 /* DATA */
-.nip-box,.pass-box{
+.box{
   margin-top:10px;
   padding:12px;
   border-radius:10px;
@@ -54,8 +57,8 @@ body{margin:0;background:#f4f6ff;padding:12px}
   align-items:center;
   font-weight:600;
 }
-.nip-box{background:#e8f1ff;}
-.pass-box{background:#fff3cd;}
+.nip{background:#e8f1ff;}
+.pass{background:#fff3cd;}
 
 .copy-btn{
   border:none;background:#000;color:#fff;
@@ -68,20 +71,19 @@ body{margin:0;background:#f4f6ff;padding:12px}
   padding:14px;
   border-radius:12px;
   text-align:center;
-  font-size:16px;
+  font-size:15px;
   font-weight:700;
   cursor:pointer;
 }
-.done-today{background:#ffd54f;color:#000;}
-.done-old{background:#43e97b;color:#fff;}
+.today{background:#b388ff;color:#fff;}
+.old{background:#43e97b;color:#fff;}
 .late{background:#ff4d4d;color:#fff;}
 
-/* LAST INPUT */
-.last-big{
+.last{
   margin-top:10px;
-  font-size:18px;
-  font-weight:bold;
+  font-size:16px;
   text-align:center;
+  font-weight:bold;
 }
 
 /* TASK */
@@ -103,7 +105,7 @@ table{
   width:100%;font-size:13px;border-collapse:collapse;
 }
 td,th{padding:8px;border-bottom:1px solid #eee}
-.today{background:#fff3cd;}
+.row-today{background:#d1c4e9;}
 </style>
 </head>
 
@@ -128,7 +130,7 @@ td,th{padding:8px;border-bottom:1px solid #eee}
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyz2FWhSfAiP6xuSjgdDk1p-BRlvvPeJl5W3oXSvxL5TNWHI0eAz7VQ1Wadee_PzqqRpg/exec";
 
-let data=[],index=0;
+let data=[],index=0,hide=false;
 
 /* LOAD */
 fetch(API_URL)
@@ -138,29 +140,31 @@ fetch(API_URL)
   render();
 });
 
-/* FORMAT */
-function formatTanggal(t){
+/* UTIL */
+function now(){
+  let d=new Date();
+  return d.toISOString();
+}
+function format(t){
   if(!t)return "-";
-  return new Date(t).toLocaleDateString("id-ID");
+  let d=new Date(t);
+  return d.toLocaleString("id-ID");
 }
-function today(){
+function todayOnly(){
   return new Date().toISOString().split("T")[0];
-}
-function selisihHari(t){
-  if(!t)return 999;
-  return Math.floor((new Date()-new Date(t))/(1000*60*60*24));
 }
 
 /* COPY */
 function copyText(text,el){
   navigator.clipboard.writeText(text);
+  let old=el.innerHTML;
   el.innerHTML="✔";
-  setTimeout(()=>el.innerHTML="📋",1500);
+  setTimeout(()=>el.innerHTML=old,1200);
 }
 
 /* STATUS */
 function toggleDone(nip){
-  const t=today();
+  let t=now();
   localStorage.setItem("done_"+nip,t);
   render();
 }
@@ -177,6 +181,7 @@ function search(v){
 }
 function goTo(n){
   index=data.findIndex(d=>d.nama===n);
+  document.getElementById("rekapBox").style.display="none";
   render();
 }
 
@@ -190,15 +195,15 @@ function renderRekap(){
   document.getElementById("rekapBox").innerHTML=`
   <div class="card">
   <table>
-  <tr><th>No</th><th>Nama</th><th>Tgl</th></tr>
+  <tr><th>No</th><th>Nama</th><th>Status</th></tr>
   ${data.map(d=>{
     let t=getStatus(d.nip);
-    let isToday=t===today();
+    let isToday=t && t.startsWith(todayOnly());
     return `
-    <tr onclick="goTo('${d.nama}')" class="${isToday?'today':''}">
+    <tr onclick="goTo('${d.nama}')" class="${isToday?'row-today':''}">
       <td>${d.no}</td>
       <td>${d.nama}</td>
-      <td>${formatTanggal(t)}</td>
+      <td>${format(t)}</td>
     </tr>`;
   }).join("")}
   </table></div>`;
@@ -208,25 +213,25 @@ function renderRekap(){
 function render(){
   let d=data[index];
   let t=getStatus(d.nip);
-  let hari=selisihHari(t);
+  let isToday=t && t.startsWith(todayOnly());
 
-  let statusClass="";
-  if(t===today()) statusClass="done-today";
-  else if(hari>=6) statusClass="late";
-  else statusClass="done-old";
+  let statusClass="old";
+  if(isToday) statusClass="today";
 
   document.getElementById("app").innerHTML=`
   <div class="card">
 
-    <h3>${d.nama}</h3>
+    <button class="hide-btn" onclick="hide=!hide;render()">👁 Hide / Show</button>
 
-    <div class="nip-box">
-      ${d.nip}
+    <h3>${hide?'***':d.nama}</h3>
+
+    <div class="box nip">
+      ${hide?'********':d.nip}
       <button class="copy-btn" onclick="copyText('${d.nip}',this)">📋</button>
     </div>
 
-    <div class="pass-box">
-      ${d.password}
+    <div class="box pass">
+      ${hide?'********':d.password}
       <button class="copy-btn" onclick="copyText('${d.password}',this)">📋</button>
     </div>
 
@@ -234,8 +239,8 @@ function render(){
       ${t? "Terakhir Input":"Klik untuk input hari ini"}
     </div>
 
-    <div class="last-big">
-      ${formatTanggal(t)}
+    <div class="last">
+      ${format(t)}
     </div>
 
     <div class="task-title" onclick="toggleTask()">📋 Task</div>
@@ -256,7 +261,14 @@ function render(){
 /* TASK */
 function task(v){
   if(!v)return"";
-  return `<div class="task-item" onclick="copyText('${v}',this)">📋 ${v}</div>`;
+  return `<div class="task-item" onclick="copyTask('${v}',this)">📋 ${v}</div>`;
+}
+
+function copyTask(text,el){
+  navigator.clipboard.writeText(text);
+  let old=el.innerHTML;
+  el.innerHTML="✔ "+text;
+  setTimeout(()=>el.innerHTML="📋 "+text,1200);
 }
 
 function toggleTask(){
