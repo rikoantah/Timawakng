@@ -162,12 +162,26 @@ function copyText(text,el){
   setTimeout(()=>el.innerHTML=old,1200);
 }
 
-/* STATUS */
+/* ✅ STATUS (INI YANG DIPERBAIKI) */
 function toggleDone(nip){
-  let t=now();
+  let t = now();
+
+  // kirim ke Google Sheet (pakai format lama)
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      nip:nip,
+      tanggal:t,
+      password:"timawakng"
+    })
+  });
+
+  // simpan lokal (biar langsung berubah)
   localStorage.setItem("done_"+nip,t);
+
   render();
 }
+
 function getStatus(nip){
   return localStorage.getItem("done_"+nip);
 }
@@ -179,6 +193,7 @@ function search(v){
   list.innerHTML=data.filter(d=>d.nama.toLowerCase().includes(v))
   .map(d=>`<div class="search-item" onclick="goTo('${d.nama}')">${d.nama}</div>`).join("");
 }
+
 function goTo(n){
   index=data.findIndex(d=>d.nama===n);
   document.getElementById("rekapBox").style.display="none";
@@ -191,6 +206,7 @@ function toggleRekap(){
   box.style.display=box.style.display==="block"?"none":"block";
   renderRekap();
 }
+
 function renderRekap(){
   document.getElementById("rekapBox").innerHTML=`
   <div class="card">
