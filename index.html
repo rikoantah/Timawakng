@@ -5,101 +5,114 @@
 
 <style>
 *{box-sizing:border-box;font-family:system-ui}
-body{margin:0;background:#f5f7ff;padding:10px}
+body{margin:0;background:#f4f6ff;padding:12px}
 
-.top{display:flex;gap:6px;margin-bottom:10px}
+/* TOP MENU */
+.top{display:flex;gap:8px;margin-bottom:12px}
 .top a{
-  flex:1;text-align:center;padding:10px;border-radius:10px;
+  flex:1;text-align:center;padding:10px;border-radius:12px;
   color:#fff;text-decoration:none;font-size:13px;
+  font-weight:600;
 }
 .top a:nth-child(1){background:#4facfe;}
 .top a:nth-child(2){background:#43e97b;}
 .top a:nth-child(3){background:#f093fb;}
 
+/* BUTTON */
 .btn-rekap{
-  width:100%;padding:10px;border:none;border-radius:10px;
-  background:#222;color:#fff;margin-bottom:10px;
+  width:100%;padding:12px;border:none;border-radius:12px;
+  background:#222;color:#fff;margin-bottom:10px;font-weight:600;
 }
 
+/* SEARCH */
 .search input{
-  width:100%;padding:10px;border-radius:10px;
+  width:100%;padding:12px;border-radius:12px;
   border:1px solid #ddd;font-size:14px;
 }
-
 .search-list{
-  background:#fff;border-radius:10px;margin-top:4px;
+  background:#fff;border-radius:12px;margin-top:4px;
   max-height:200px;overflow:auto;
 }
-
 .search-item{
-  padding:8px;border-bottom:1px solid #eee;
-  font-size:13px;cursor:pointer;
+  padding:10px;border-bottom:1px solid #eee;
+  font-size:14px;cursor:pointer;
 }
 
+/* CARD */
 .card{
-  background:#fff;border-radius:12px;padding:14px;
-  box-shadow:0 6px 15px rgba(0,0,0,.08);
+  background:#fff;border-radius:16px;padding:16px;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
 }
 
-.hidden-box{
-  text-align:center;padding:10px;background:#eef3ff;
-  border-radius:10px;cursor:pointer;font-size:13px;
+/* DATA */
+.nip-box,.pass-box{
+  margin-top:10px;
+  padding:12px;
+  border-radius:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:600;
+}
+.nip-box{background:#e8f1ff;}
+.pass-box{background:#fff3cd;}
+
+.copy-btn{
+  border:none;background:#000;color:#fff;
+  border-radius:8px;padding:6px 10px;font-size:12px;
 }
 
-.no{
-  width:30px;height:30px;border-radius:50%;
-  background:#4facfe;color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  margin-bottom:6px;
-}
-
-.nip{display:flex;justify-content:space-between;font-size:12px}
-
-.pass{
-  margin-top:10px;padding:8px;background:#eef3ff;
-  border-radius:8px;display:flex;justify-content:space-between;
-}
-
-.btn{
-  border:none;background:#4facfe;color:#fff;
-  border-radius:6px;padding:4px 7px;font-size:11px;
-}
-
+/* STATUS */
 .status{
-  margin-top:10px;padding:8px;border-radius:8px;
-  text-align:center;font-size:13px;cursor:pointer;background:#ddd;
+  margin-top:14px;
+  padding:14px;
+  border-radius:12px;
+  text-align:center;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
 }
-.status.done{background:#43e97b;color:#fff}
+.done-today{background:#ffd54f;color:#000;}
+.done-old{background:#43e97b;color:#fff;}
+.late{background:#ff4d4d;color:#fff;}
 
-.task-title{margin-top:10px;cursor:pointer;color:#4facfe}
-.task-list{display:none}
+/* LAST INPUT */
+.last-big{
+  margin-top:10px;
+  font-size:18px;
+  font-weight:bold;
+  text-align:center;
+}
+
+/* TASK */
+.task-title{margin-top:12px;font-weight:600;cursor:pointer}
 .task-item{
-  background:#fafbff;padding:6px;border-radius:6px;
-  margin-top:5px;font-size:12px;
+  background:#f7f9ff;padding:10px;border-radius:8px;
+  margin-top:6px;font-size:13px;cursor:pointer;
 }
 
-.nav{display:flex;margin-top:10px}
+/* NAV */
+.nav{display:flex;margin-top:12px}
 .nav button{
-  flex:1;margin:2px;padding:8px;border:none;
-  border-radius:8px;background:#4facfe;color:#fff;
+  flex:1;margin:3px;padding:10px;border:none;
+  border-radius:10px;background:#4facfe;color:#fff;
 }
 
+/* REKAP */
 table{
-  width:100%;font-size:12px;border-collapse:collapse;
+  width:100%;font-size:13px;border-collapse:collapse;
 }
-td,th{padding:6px;border-bottom:1px solid #eee}
-
-.red{color:red}
-.green{color:green}
+td,th{padding:8px;border-bottom:1px solid #eee}
+.today{background:#fff3cd;}
 </style>
 </head>
 
 <body>
 
 <div class="top">
-  <a href="https://aktivitas.kalbarprov.go.id//engine/feature26/data-kinerja/add#TakeOff" target="_blank">INPUT</a>
-  <a href="https://epresensi.kalbarprov.go.id/login-general" target="_blank">JADWAL</a>
-  <a href="https://script.google.com/macros/s/AKfycbwl9sC1tabi_-BC6vU2KFH1drCGPHwgmgIqNFks_ipCSxFCjH1NyxITPodOC4CWJwjJYQ/exec" target="_blank">SUKET</a>
+  <a href="#" target="_blank">INPUT</a>
+  <a href="#" target="_blank">JADWAL</a>
+  <a href="#" target="_blank">SUKET</a>
 </div>
 
 <button class="btn-rekap" onclick="toggleRekap()">📊 REKAP</button>
@@ -113,155 +126,123 @@ td,th{padding:6px;border-bottom:1px solid #eee}
 <div id="app"></div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyz2FWhSfAiP6xuSjgdDk1p-BRlvvPeJl5W3oXSvxL5TNWHI0eAz7VQ1Wadee_PzqqRpg/exec";
+const API_URL = "ISI_URL_KAMU";
 
-let data=[],index=0,showPwd=false,showInfo=false;
-
-/* FORMAT TANGGAL */
-function formatTanggal(tgl){
-  if(!tgl) return "-";
-  const d = new Date(tgl);
-  if(isNaN(d)) return tgl;
-  return d.toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric"
-  });
-}
-
-/* SELISIH HARI */
-function selisihHari(tgl){
-  if(!tgl) return 999;
-  const t1=new Date(tgl);
-  const t2=new Date();
-  return Math.floor((t2-t1)/(1000*60*60*24));
-}
+let data=[],index=0;
 
 /* LOAD */
 fetch(API_URL)
 .then(r=>r.json())
 .then(r=>{
   data=r;
-  data.forEach(d=>{
-    if(d.terakhir){
-      localStorage.setItem("done_"+d.nip,d.terakhir);
-    }
-  });
   render();
 });
 
-/* UTIL */
-function today(){return new Date().toISOString();}
-function key(nip){return "done_"+nip;}
-
-/* CLICK */
-function toggleDone(nip){
-  const tgl=today();
-  localStorage.setItem(key(nip),tgl);
-
-  fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      nip:nip,
-      tanggal:tgl,
-      password:"timawakng"
-    })
-  });
-
-  render();
+/* FORMAT */
+function formatTanggal(t){
+  if(!t)return "-";
+  return new Date(t).toLocaleDateString("id-ID");
+}
+function today(){
+  return new Date().toISOString().split("T")[0];
+}
+function selisihHari(t){
+  if(!t)return 999;
+  return Math.floor((new Date()-new Date(t))/(1000*60*60*24));
 }
 
-function getStatus(nip){return localStorage.getItem(key(nip));}
+/* COPY */
+function copyText(text,el){
+  navigator.clipboard.writeText(text);
+  el.innerHTML="✔";
+  setTimeout(()=>el.innerHTML="📋",1500);
+}
+
+/* STATUS */
+function toggleDone(nip){
+  const t=today();
+  localStorage.setItem("done_"+nip,t);
+  render();
+}
+function getStatus(nip){
+  return localStorage.getItem("done_"+nip);
+}
 
 /* SEARCH */
 function search(v){
   v=v.toLowerCase();
-  const list=document.getElementById("searchList");
-  if(!v){list.innerHTML="";return;}
+  let list=document.getElementById("searchList");
   list.innerHTML=data.filter(d=>d.nama.toLowerCase().includes(v))
-    .map(d=>`<div class="search-item" onclick="goTo('${d.nama}')">${d.nama}</div>`).join("");
+  .map(d=>`<div class="search-item" onclick="goTo('${d.nama}')">${d.nama}</div>`).join("");
 }
-
 function goTo(n){
   index=data.findIndex(d=>d.nama===n);
-  document.getElementById("rekapBox").style.display="none";
   render();
 }
 
 /* REKAP */
 function toggleRekap(){
-  const box=document.getElementById("rekapBox");
-  if(box.style.display==="block"){box.style.display="none";return;}
-  box.style.display="block";
+  let box=document.getElementById("rekapBox");
+  box.style.display=box.style.display==="block"?"none":"block";
   renderRekap();
 }
-
 function renderRekap(){
   document.getElementById("rekapBox").innerHTML=`
   <div class="card">
   <table>
   <tr><th>No</th><th>Nama</th><th>Tgl</th></tr>
-
   ${data.map(d=>{
-    const raw=getStatus(d.nip)||d.terakhir||"-";
-    const tgl=formatTanggal(raw);
-    const merah=selisihHari(raw)>=6;
-
+    let t=getStatus(d.nip);
+    let isToday=t===today();
     return `
-    <tr onclick="goTo('${d.nama}')" style="cursor:pointer">
+    <tr onclick="goTo('${d.nama}')" class="${isToday?'today':''}">
       <td>${d.no}</td>
       <td>${d.nama}</td>
-      <td class="${merah?'red':'green'}">${tgl}</td>
+      <td>${formatTanggal(t)}</td>
     </tr>`;
   }).join("")}
-
   </table></div>`;
 }
 
 /* RENDER */
 function render(){
-  const d=data[index];
-  const raw=getStatus(d.nip);
-  const status=formatTanggal(raw);
-  const merah=selisihHari(raw)>=6;
+  let d=data[index];
+  let t=getStatus(d.nip);
+  let hari=selisihHari(t);
+
+  let statusClass="";
+  if(t===today()) statusClass="done-today";
+  else if(hari>=6) statusClass="late";
+  else statusClass="done-old";
 
   document.getElementById("app").innerHTML=`
   <div class="card">
 
-    <div class="hidden-box" onclick="showInfo=!showInfo;render()">
-      ${showInfo?"Sembunyikan":"👁 Tampilkan Data"}
+    <h3>${d.nama}</h3>
+
+    <div class="nip-box">
+      ${d.nip}
+      <button class="copy-btn" onclick="copyText('${d.nip}',this)">📋</button>
     </div>
 
-    ${showInfo?`
-      <div class="no">${d.no}</div>
-      <div>${d.nama}</div>
-      <div class="nip">
-        <span>${d.nip}</span>
-        <button class="btn" onclick="copy('${d.nip}')">Copy</button>
-      </div>
-    `:""}
-
-    <div class="pass">
-      <span>${showPwd?d.password:"••••••"}</span>
-      <div>
-        <button class="btn" onclick="showPwd=!showPwd;render()">👁</button>
-        <button class="btn" onclick="copy('${d.password}')">📋</button>
-      </div>
+    <div class="pass-box">
+      ${d.password}
+      <button class="copy-btn" onclick="copyText('${d.password}',this)">📋</button>
     </div>
 
-    <div class="status ${raw?'done':''}" 
-    style="background:${merah?'#ff4d4d':''}"
-    onclick="toggleDone('${d.nip}')">
-      ${raw?"📅 Terakhir Input: "+status:"✔ Input hari ini"}
+    <div class="status ${statusClass}" onclick="toggleDone('${d.nip}')">
+      ${t? "Terakhir Input":"Klik untuk input hari ini"}
+    </div>
+
+    <div class="last-big">
+      ${formatTanggal(t)}
     </div>
 
     <div class="task-title" onclick="toggleTask()">📋 Task</div>
-    <div id="taskBox" class="task-list">
+    <div id="taskBox">
       ${task(d.task1)}
       ${task(d.task2)}
       ${task(d.task3)}
-      ${task(d.task4)}
-      ${task(d.task5)}
     </div>
 
     <div class="nav">
@@ -275,18 +256,17 @@ function render(){
 /* TASK */
 function task(v){
   if(!v)return"";
-  return `<div class="task-item" onclick="copy('${v}')">${v}</div>`;
+  return `<div class="task-item" onclick="copyText('${v}',this)">📋 ${v}</div>`;
 }
 
 function toggleTask(){
-  const e=document.getElementById("taskBox");
-  e.style.display=e.style.display==="block"?"none":"block";
+  let e=document.getElementById("taskBox");
+  e.style.display=e.style.display==="none"?"block":"none";
 }
 
 function next(){if(index<data.length-1){index++;render();}}
 function prev(){if(index>0){index--;render();}}
 
-function copy(t){navigator.clipboard.writeText(t);}
 </script>
 
 </body>
