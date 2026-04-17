@@ -6,89 +6,94 @@
 
 <style>
 *{box-sizing:border-box;font-family:system-ui}
-body{margin:0;background:#f6f7fb;padding:10px}
+body{margin:0;background:#f4f6fb;padding:12px}
+
+/* WRAPPER */
+.container{
+  max-width:900px;
+  margin:auto;
+}
 
 /* TOP */
-.top{display:flex;gap:6px;margin-bottom:10px}
+.top{display:flex;gap:8px;margin-bottom:12px}
 .top a{
-  flex:1;text-align:center;padding:10px;border-radius:10px;
-  color:#fff;text-decoration:none;font-size:13px;font-weight:600;
+  flex:1;text-align:center;padding:12px;border-radius:10px;
+  color:#fff;text-decoration:none;font-weight:600;
 }
 .top a:nth-child(1){background:#4facfe;}
 .top a:nth-child(2){background:#43e97b;}
 .top a:nth-child(3){background:#f093fb;}
 
+/* REKAP */
 .btn-rekap{
-  width:100%;padding:10px;border:none;border-radius:10px;
+  width:100%;padding:12px;border:none;border-radius:10px;
   background:#222;color:#fff;margin-bottom:10px;
-}
-
-/* SEARCH */
-.search input{
-  width:100%;padding:10px;border-radius:10px;
-  border:1px solid #ddd;
-}
-.search-list{
-  background:#fff;border-radius:10px;margin-top:5px;
-}
-.search-item{
-  padding:8px;border-bottom:1px solid #eee;
-  cursor:pointer;
 }
 
 /* CARD */
 .card{
-  background:#fff;border-radius:12px;padding:14px;
-  box-shadow:0 4px 10px rgba(0,0,0,.05);
+  background:#fff;border-radius:14px;padding:16px;
+  box-shadow:0 6px 15px rgba(0,0,0,.06);
+}
+
+/* TITLE */
+.name{
+  text-align:center;
+  font-size:18px;
+  font-weight:700;
 }
 
 /* DATA */
 .box{
   display:flex;justify-content:space-between;
-  padding:10px;border-radius:8px;margin-top:8px;
+  padding:10px;border-radius:8px;margin-top:10px;
+  background:#f1f3f8;
 }
-.nip{background:#eef4ff}
-.pass{background:#fff4e5}
-
 .copy{
-  border:none;background:#000;color:#fff;
-  border-radius:6px;padding:4px 8px;
+  background:#000;color:#fff;border:none;
+  border-radius:6px;padding:5px 8px;
 }
 
 /* STATUS */
 .status{
-  margin-top:12px;padding:12px;border-radius:10px;
+  margin-top:14px;padding:12px;border-radius:10px;
   text-align:center;font-weight:600;cursor:pointer;
 }
 .today{background:#b388ff;color:#fff}
 .old{background:#43e97b;color:#fff}
 
 /* TASK */
-.task-title{margin-top:10px;font-weight:600;cursor:pointer}
+.task-title{
+  margin-top:12px;text-align:center;
+  cursor:pointer;font-weight:600;
+}
 .task-item{
-  background:#f7f9ff;padding:8px;border-radius:6px;
-  margin-top:5px;font-size:13px;cursor:pointer;
+  background:#eef2ff;padding:8px;border-radius:6px;
+  margin-top:5px;font-size:13px;
 }
 
 /* NAV */
-.nav{display:flex;gap:6px;margin-top:10px}
+.nav{display:flex;gap:8px;margin-top:12px}
 .nav button{
   flex:1;padding:10px;border:none;border-radius:8px;
   background:#4facfe;color:#fff;
 }
 
 /* TABLE */
-table{width:100%;font-size:13px}
-td,th{padding:6px;border-bottom:1px solid #eee}
+table{width:100%;font-size:14px}
+td,th{padding:8px;border-bottom:1px solid #eee}
 .row-today{background:#ede7f6}
 
-@media(min-width:600px){
-  body{max-width:420px;margin:auto}
+/* RESPONSIVE */
+@media(max-width:600px){
+  .name{font-size:16px}
 }
 </style>
 </head>
 
 <body>
+
+<div class="container">
 
 <div class="top">
   <a href="https://aktivitas.kalbarprov.go.id//engine/feature26/data-kinerja/add#TakeOff" target="_blank">INPUT</a>
@@ -98,18 +103,15 @@ td,th{padding:6px;border-bottom:1px solid #eee}
 
 <button class="btn-rekap" onclick="toggleRekap()">📊 REKAP</button>
 
-<div class="search">
-  <input type="text" placeholder="Cari nama..." oninput="search(this.value)">
-  <div id="searchList" class="search-list"></div>
-</div>
-
 <div id="rekapBox" style="display:none"></div>
 <div id="app"></div>
 
-<script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyz2FWhSfAiP6xuSjgdDk1p-BRlvvPeJl5W3oXSvxL5TNWHI0eAz7VQ1Wadee_PzqqRpg/exec";
+</div>
 
-let data=[],index=0;
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbyz2FWhSfAiP6xuSjgdDk1p-BRlvvPeJl5W3oXSvxL5TNWHI0eAz7VQ1Wadee_PzqqRpg/exec";
+
+let data=[],index=0,showName=false,showTask=false;
 
 /* LOAD */
 fetch(API_URL).then(r=>r.json()).then(r=>{
@@ -121,6 +123,11 @@ fetch(API_URL).then(r=>r.json()).then(r=>{
 function now(){return new Date().toISOString();}
 function format(t){return t?new Date(t).toLocaleString("id-ID"):"-";}
 function todayOnly(){return new Date().toISOString().split("T")[0];}
+
+/* INITIAL */
+function initials(name){
+  return name.split(" ").map(x=>x[0]).join("").toUpperCase();
+}
 
 /* COPY */
 function copyText(t,el){
@@ -135,20 +142,6 @@ function toggleDone(nip){
     method:"POST",
     body:JSON.stringify({nip:nip,tanggal:now(),password:"timawakng"})
   }).then(()=>location.reload());
-}
-
-/* SEARCH */
-function search(v){
-  v=v.toLowerCase();
-  let list=document.getElementById("searchList");
-  list.innerHTML=data.filter(d=>d.nama.toLowerCase().includes(v))
-  .map(d=>`<div class="search-item" onclick="goTo('${d.nama}')">${d.nama}</div>`).join("");
-}
-
-function goTo(n){
-  index=data.findIndex(d=>d.nama===n);
-  document.getElementById("rekapBox").style.display="none";
-  render();
 }
 
 /* REKAP */
@@ -169,11 +162,18 @@ function renderRekap(){
     return `
     <tr onclick="goTo('${d.nama}')" class="${isToday?'row-today':''}">
       <td>${d.no}</td>
-      <td>${d.nama}</td>
+      <td>${initials(d.nama)}</td>
       <td>${format(t)}</td>
     </tr>`;
   }).join("")}
   </table></div>`;
+}
+
+/* NAVIGASI */
+function goTo(n){
+  index=data.findIndex(d=>d.nama===n);
+  document.getElementById("rekapBox").style.display="none";
+  render();
 }
 
 /* RENDER */
@@ -185,15 +185,17 @@ function render(){
   document.getElementById("app").innerHTML=`
   <div class="card">
 
-    <h3>${d.nama}</h3>
+    <div class="name" onclick="showName=!showName;render()">
+      ${showName?d.nama:initials(d.nama)}
+    </div>
 
-    <div class="box nip">
-      ${d.nip}
+    <div class="box">
+      ********
       <button class="copy" onclick="copyText('${d.nip}',this)">📋</button>
     </div>
 
-    <div class="box pass">
-      ${d.password}
+    <div class="box">
+      ********
       <button class="copy" onclick="copyText('${d.password}',this)">📋</button>
     </div>
 
@@ -203,12 +205,15 @@ function render(){
 
     <div style="text-align:center;margin-top:6px">${format(t)}</div>
 
-    <div class="task-title" onclick="toggleTask()">📋 Task</div>
-    <div id="taskBox">
+    <div class="task-title" onclick="showTask=!showTask;render()">
+      📋 Task
+    </div>
+
+    ${showTask?`
       ${task(d.task1)}
       ${task(d.task2)}
       ${task(d.task3)}
-    </div>
+    `:""}
 
     <div class="nav">
       <button onclick="prev()">⬅</button>
@@ -222,11 +227,6 @@ function render(){
 function task(v){
   if(!v)return"";
   return `<div class="task-item" onclick="copyText('${v}',this)">📋 ${v}</div>`;
-}
-
-function toggleTask(){
-  let e=document.getElementById("taskBox");
-  e.style.display=e.style.display==="none"?"block":"none";
 }
 
 function next(){if(index<data.length-1){index++;render();}}
