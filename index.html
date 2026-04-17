@@ -54,9 +54,9 @@ body{margin:0;background:#f4f6fb;padding:12px}
 .status{
   margin-top:14px;padding:12px;border-radius:10px;
   text-align:center;font-weight:600;cursor:pointer;
+  background:#43e97b;color:#fff;
 }
-.today{background:#b388ff;color:#fff}
-.old{background:#43e97b;color:#fff}
+.today{background:#b388ff !important}
 
 /* TASK */
 .task-title{
@@ -128,12 +128,19 @@ function copyRow(text,el){
   copyEffect(el);
 }
 
-/* UPDATE */
+/* UPDATE (REALTIME UI) */
 function toggleDone(nip){
+  let t=now();
+
+  // update UI langsung
+  data[index].terakhir = t;
+  render();
+
+  // kirim ke server
   fetch(API_URL,{
     method:"POST",
-    body:JSON.stringify({nip:nip,tanggal:now(),password:"timawakng"})
-  }).then(()=>location.reload());
+    body:JSON.stringify({nip:nip,tanggal:t,password:"timawakng"})
+  });
 }
 
 /* REKAP */
@@ -182,14 +189,14 @@ function render(){
     </div>
 
     <div class="row" onclick="copyRow('${d.nip}',this)">
-      NIP
+      NIP ***
     </div>
 
     <div class="row" onclick="copyRow('${d.password}',this)">
-      PASSWORD
+      PASSWORD ***
     </div>
 
-    <div class="status ${isToday?'today':'old'}" onclick="toggleDone('${d.nip}')">
+    <div class="status ${isToday?'today':''}" onclick="toggleDone('${d.nip}')">
       ${t? "Terakhir Input\n"+format(t) : "Klik untuk input hari ini"}
     </div>
 
