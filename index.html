@@ -195,6 +195,169 @@ function render(){
 function next(){if(index<data.length-1){index++;render();}}
 function prev(){if(index>0){index--;render();}}
 
+</script><script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyz2FWhSfAiP6xuSjgdDk1p-BRlvvPeJl5W3oXSvxL5TNWHI0eAz7VQ1Wadee_PzqqRpg/exec";
+
+let data=[],index=0,hide=false;
+
+/* LOAD */
+fetch(API_URL)
+.then(r=>r.json())
+.then(r=>{
+  data=r;
+  render();
+});
+
+/* UTIL */
+function now(){
+  return new Date().toISOString();
+}
+function format(t){
+  if(!t)return "-";
+  return new Date(t).toLocaleString("id-ID");
+}
+function todayOnly(){
+  return new Date().toISOString().split("T")[0];
+}
+
+/* COPY */
+function copyText(text,el){
+  navigator.clipboard.writeText(text);
+  let old=el.innerHTML;
+  el.innerHTML="✔";
+  setTimeout(()=>el.innerHTML=old,1200);
+}
+
+/* ✅ STATUS (FULL SERVER BASED) */
+function toggleDone(nip){
+  let t = now();
+
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      nip:nip,
+      tanggal:t,
+      password:"timawakng"
+    })
+  })
+  .then(()=>location.reload());
+}
+
+/* 🔥 AMBIL DARI SHEET */
+function getStatus(nip){
+  let d = data.find(x=>x.nip==nip);
+  return d ? d.terakhir : null;
+}
+
+/* SEARCH */
+function search(v){
+  v=v.toLowerCase();
+  let list=document.getElementById("searchList");
+  list.innerHTML=data.filter(d=>d.nama.toLowerCase().includes(v))
+  .map(d=>`<div class="search-item" onclick="goTo('${d.nama}')">${d.nama}</div>`).join("");
+}
+
+function goTo(n){
+  index=data.findIndex(d=>d.nama===n);
+  document.getElementById("rekapBox").style.display="none";
+  render();
+}
+
+/* REKAP */
+function toggleRekap(){
+  let box=document.getElementById("rekapBox");
+  box.style.display=box.style.display==="block"?"none":"block";
+  renderRekap();
+}
+
+function renderRekap(){
+  document.getElementById("rekapBox").innerHTML=`
+  <div class="card">
+  <table>
+  <tr><th>No</th><th>Nama</th><th>Status</th></tr>
+  ${data.map(d=>{
+    let t=d.terakhir;
+    let isToday=t && t.startsWith(todayOnly());
+    return `
+    <tr onclick="goTo('${d.nama}')" class="${isToday?'row-today':''}">
+      <td>${d.no}</td>
+      <td>${d.nama}</td>
+      <td>${format(t)}</td>
+    </tr>`;
+  }).join("")}
+  </table></div>`;
+}
+
+/* RENDER */
+function render(){
+  let d=data[index];
+  let t=d.terakhir;
+  let isToday=t && t.startsWith(todayOnly());
+
+  let statusClass="old";
+  if(isToday) statusClass="today";
+
+  document.getElementById("app").innerHTML=`
+  <div class="card">
+
+    <button class="hide-btn" onclick="hide=!hide;render()">👁 Hide / Show</button>
+
+    <h3>${hide?'***':d.nama}</h3>
+
+    <div class="box nip">
+      ${hide?'********':d.nip}
+      <button class="copy-btn" onclick="copyText('${d.nip}',this)">📋</button>
+    </div>
+
+    <div class="box pass">
+      ${hide?'********':d.password}
+      <button class="copy-btn" onclick="copyText('${d.password}',this)">📋</button>
+    </div>
+
+    <div class="status ${statusClass}" onclick="toggleDone('${d.nip}')">
+      ${t? "Terakhir Input":"Klik untuk input hari ini"}
+    </div>
+
+    <div class="last">
+      ${format(t)}
+    </div>
+
+    <div class="task-title" onclick="toggleTask()">📋 Task</div>
+    <div id="taskBox">
+      ${task(d.task1)}
+      ${task(d.task2)}
+      ${task(d.task3)}
+    </div>
+
+    <div class="nav">
+      <button onclick="prev()">⬅</button>
+      <button onclick="next()">➡</button>
+    </div>
+
+  </div>`;
+}
+
+/* TASK */
+function task(v){
+  if(!v)return"";
+  return `<div class="task-item" onclick="copyTask('${v}',this)">📋 ${v}</div>`;
+}
+
+function copyTask(text,el){
+  navigator.clipboard.writeText(text);
+  let old=el.innerHTML;
+  el.innerHTML="✔ "+text;
+  setTimeout(()=>el.innerHTML="📋 "+text,1200);
+}
+
+function toggleTask(){
+  let e=document.getElementById("taskBox");
+  e.style.display=e.style.display==="none"?"block":"none";
+}
+
+function next(){if(index<data.length-1){index++;render();}}
+function prev(){if(index>0){index--;render();}}
+
 </script>
 
 </body>
