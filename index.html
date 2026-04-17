@@ -8,11 +8,7 @@
 *{box-sizing:border-box;font-family:system-ui}
 body{margin:0;background:#f4f6fb;padding:12px}
 
-/* WRAPPER */
-.container{
-  max-width:900px;
-  margin:auto;
-}
+.container{max-width:900px;margin:auto}
 
 /* TOP */
 .top{display:flex;gap:8px;margin-bottom:12px}
@@ -36,14 +32,15 @@ body{margin:0;background:#f4f6fb;padding:12px}
   box-shadow:0 6px 15px rgba(0,0,0,.06);
 }
 
-/* TITLE */
+/* NAME */
 .name{
   text-align:center;
   font-size:18px;
   font-weight:700;
+  cursor:pointer;
 }
 
-/* DATA */
+/* BOX */
 .box{
   display:flex;justify-content:space-between;
   padding:10px;border-radius:8px;margin-top:10px;
@@ -72,22 +69,11 @@ body{margin:0;background:#f4f6fb;padding:12px}
   margin-top:5px;font-size:13px;
 }
 
-/* NAV */
-.nav{display:flex;gap:8px;margin-top:12px}
-.nav button{
-  flex:1;padding:10px;border:none;border-radius:8px;
-  background:#4facfe;color:#fff;
-}
-
 /* TABLE */
 table{width:100%;font-size:14px}
 td,th{padding:8px;border-bottom:1px solid #eee}
 .row-today{background:#ede7f6}
 
-/* RESPONSIVE */
-@media(max-width:600px){
-  .name{font-size:16px}
-}
 </style>
 </head>
 
@@ -162,14 +148,14 @@ function renderRekap(){
     return `
     <tr onclick="goTo('${d.nama}')" class="${isToday?'row-today':''}">
       <td>${d.no}</td>
-      <td>${initials(d.nama)}</td>
+      <td>${d.nama}</td>
       <td>${format(t)}</td>
     </tr>`;
   }).join("")}
   </table></div>`;
 }
 
-/* NAVIGASI */
+/* NAV */
 function goTo(n){
   index=data.findIndex(d=>d.nama===n);
   document.getElementById("rekapBox").style.display="none";
@@ -200,10 +186,8 @@ function render(){
     </div>
 
     <div class="status ${isToday?'today':'old'}" onclick="toggleDone('${d.nip}')">
-      ${t?"Terakhir Input":"Klik untuk input hari ini"}
+      ${t? "Terakhir Input\n"+format(t) : "Klik untuk input hari ini"}
     </div>
-
-    <div style="text-align:center;margin-top:6px">${format(t)}</div>
 
     <div class="task-title" onclick="showTask=!showTask;render()">
       📋 Task
@@ -215,11 +199,6 @@ function render(){
       ${task(d.task3)}
     `:""}
 
-    <div class="nav">
-      <button onclick="prev()">⬅</button>
-      <button onclick="next()">➡</button>
-    </div>
-
   </div>`;
 }
 
@@ -228,9 +207,6 @@ function task(v){
   if(!v)return"";
   return `<div class="task-item" onclick="copyText('${v}',this)">📋 ${v}</div>`;
 }
-
-function next(){if(index<data.length-1){index++;render();}}
-function prev(){if(index>0){index--;render();}}
 
 </script>
 
