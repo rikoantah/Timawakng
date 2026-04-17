@@ -40,15 +40,14 @@ body{margin:0;background:#f4f6fb;padding:12px}
   cursor:pointer;
 }
 
-/* BOX */
-.box{
-  display:flex;justify-content:space-between;
-  padding:10px;border-radius:8px;margin-top:10px;
+/* ROW */
+.row{
+  padding:12px;border-radius:8px;
   background:#f1f3f8;
-}
-.copy{
-  background:#000;color:#fff;border:none;
-  border-radius:6px;padding:5px 8px;
+  margin-top:10px;
+  cursor:pointer;
+  text-align:center;
+  font-weight:600;
 }
 
 /* STATUS */
@@ -65,8 +64,9 @@ body{margin:0;background:#f4f6fb;padding:12px}
   cursor:pointer;font-weight:600;
 }
 .task-item{
-  background:#eef2ff;padding:8px;border-radius:6px;
-  margin-top:5px;font-size:13px;
+  background:#eef2ff;padding:10px;border-radius:6px;
+  margin-top:6px;
+  cursor:pointer;
 }
 
 /* TABLE */
@@ -115,11 +115,17 @@ function initials(name){
   return name.split(" ").map(x=>x[0]).join("").toUpperCase();
 }
 
+/* COPY EFFECT */
+function copyEffect(el){
+  let old=el.innerText;
+  el.innerText="✔";
+  setTimeout(()=>el.innerText=old,1000);
+}
+
 /* COPY */
-function copyText(t,el){
-  navigator.clipboard.writeText(t);
-  el.innerHTML="✔";
-  setTimeout(()=>el.innerHTML="📋",1000);
+function copyRow(text,el){
+  navigator.clipboard.writeText(text);
+  copyEffect(el);
 }
 
 /* UPDATE */
@@ -175,14 +181,12 @@ function render(){
       ${showName?d.nama:initials(d.nama)}
     </div>
 
-    <div class="box">
-      ********
-      <button class="copy" onclick="copyText('${d.nip}',this)">📋</button>
+    <div class="row" onclick="copyRow('${d.nip}',this)">
+      NIP
     </div>
 
-    <div class="box">
-      ********
-      <button class="copy" onclick="copyText('${d.password}',this)">📋</button>
+    <div class="row" onclick="copyRow('${d.password}',this)">
+      PASSWORD
     </div>
 
     <div class="status ${isToday?'today':'old'}" onclick="toggleDone('${d.nip}')">
@@ -190,7 +194,7 @@ function render(){
     </div>
 
     <div class="task-title" onclick="showTask=!showTask;render()">
-      📋 Task
+      Task
     </div>
 
     ${showTask?`
@@ -205,7 +209,7 @@ function render(){
 /* TASK */
 function task(v){
   if(!v)return"";
-  return `<div class="task-item" onclick="copyText('${v}',this)">📋 ${v}</div>`;
+  return `<div class="task-item" onclick="copyRow('${v}',this)">${v}</div>`;
 }
 
 </script>
