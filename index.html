@@ -1,100 +1,87 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 *{box-sizing:border-box;font-family:system-ui}
 body{margin:0;background:#f6f7fb;padding:10px}
 
-/* TOP MENU */
-.top{
-  display:flex;
-  gap:6px;
-  margin-bottom:10px;
-}
+/* TOP */
+.top{display:flex;gap:6px;margin-bottom:10px}
 .top a{
-  flex:1;
-  text-align:center;
-  padding:10px;
-  border-radius:10px;
-  color:#fff;
-  text-decoration:none;
-  font-size:13px;
-  font-weight:600;
+  flex:1;text-align:center;padding:10px;border-radius:10px;
+  color:#fff;text-decoration:none;font-size:13px;font-weight:600;
 }
 .top a:nth-child(1){background:#4facfe;}
 .top a:nth-child(2){background:#43e97b;}
 .top a:nth-child(3){background:#f093fb;}
 
-/* CARD */
-.card{
-  background:#fff;
-  border-radius:14px;
-  padding:14px;
-  box-shadow:0 4px 12px rgba(0,0,0,.06);
+.btn-rekap{
+  width:100%;padding:10px;border:none;border-radius:10px;
+  background:#222;color:#fff;margin-bottom:10px;
 }
 
-/* TEXT */
-h3{margin:0 0 8px;font-size:16px}
+/* SEARCH */
+.search input{
+  width:100%;padding:10px;border-radius:10px;
+  border:1px solid #ddd;
+}
+.search-list{
+  background:#fff;border-radius:10px;margin-top:5px;
+}
+.search-item{
+  padding:8px;border-bottom:1px solid #eee;
+  cursor:pointer;
+}
 
-/* DATA BOX */
+/* CARD */
+.card{
+  background:#fff;border-radius:12px;padding:14px;
+  box-shadow:0 4px 10px rgba(0,0,0,.05);
+}
+
+/* DATA */
 .box{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px;
-  border-radius:8px;
-  margin-top:8px;
-  font-size:13px;
+  display:flex;justify-content:space-between;
+  padding:10px;border-radius:8px;margin-top:8px;
 }
 .nip{background:#eef4ff}
 .pass{background:#fff4e5}
 
 .copy{
-  background:#000;
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  padding:5px 8px;
-  font-size:12px;
+  border:none;background:#000;color:#fff;
+  border-radius:6px;padding:4px 8px;
 }
 
 /* STATUS */
 .status{
-  margin-top:12px;
-  padding:12px;
-  border-radius:10px;
-  text-align:center;
-  font-weight:600;
-  font-size:14px;
-  cursor:pointer;
+  margin-top:12px;padding:12px;border-radius:10px;
+  text-align:center;font-weight:600;cursor:pointer;
 }
 .today{background:#b388ff;color:#fff}
 .old{background:#43e97b;color:#fff}
 
-/* LAST */
-.last{
-  text-align:center;
-  margin-top:8px;
-  font-size:13px;
+/* TASK */
+.task-title{margin-top:10px;font-weight:600;cursor:pointer}
+.task-item{
+  background:#f7f9ff;padding:8px;border-radius:6px;
+  margin-top:5px;font-size:13px;cursor:pointer;
 }
 
 /* NAV */
-.nav{
-  display:flex;
-  gap:6px;
-  margin-top:12px;
-}
+.nav{display:flex;gap:6px;margin-top:10px}
 .nav button{
-  flex:1;
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  background:#4facfe;
-  color:#fff;
+  flex:1;padding:10px;border:none;border-radius:8px;
+  background:#4facfe;color:#fff;
 }
 
-/* RESPONSIVE */
+/* TABLE */
+table{width:100%;font-size:13px}
+td,th{padding:6px;border-bottom:1px solid #eee}
+.row-today{background:#ede7f6}
+
 @media(min-width:600px){
   body{max-width:420px;margin:auto}
 }
@@ -103,14 +90,20 @@ h3{margin:0 0 8px;font-size:16px}
 
 <body>
 
-<!-- MENU -->
 <div class="top">
   <a href="https://aktivitas.kalbarprov.go.id//engine/feature26/data-kinerja/add#TakeOff" target="_blank">INPUT</a>
   <a href="https://epresensi.kalbarprov.go.id/login-general" target="_blank">JADWAL</a>
   <a href="https://script.google.com/macros/s/AKfycbwl9sC1tabi_-BC6vU2KFH1drCGPHwgmgIqNFks_ipCSxFCjH1NyxITPodOC4CWJwjJYQ/exec" target="_blank">SUKET</a>
 </div>
 
-<!-- APP -->
+<button class="btn-rekap" onclick="toggleRekap()">📊 REKAP</button>
+
+<div class="search">
+  <input type="text" placeholder="Cari nama..." oninput="search(this.value)">
+  <div id="searchList" class="search-list"></div>
+</div>
+
+<div id="rekapBox" style="display:none"></div>
 <div id="app"></div>
 
 <script>
@@ -118,46 +111,69 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyz2FWhSfAiP6xuSjgdDk1p
 
 let data=[],index=0;
 
-/* LOAD DATA */
-fetch(API_URL)
-.then(r=>r.json())
-.then(r=>{
+/* LOAD */
+fetch(API_URL).then(r=>r.json()).then(r=>{
   data=r;
   render();
 });
 
 /* UTIL */
-function now(){
-  return new Date().toISOString();
-}
-
-function format(t){
-  if(!t) return "-";
-  return new Date(t).toLocaleString("id-ID");
-}
-
-function todayOnly(){
-  return new Date().toISOString().split("T")[0];
-}
+function now(){return new Date().toISOString();}
+function format(t){return t?new Date(t).toLocaleString("id-ID"):"-";}
+function todayOnly(){return new Date().toISOString().split("T")[0];}
 
 /* COPY */
-function copyText(text,btn){
-  navigator.clipboard.writeText(text);
-  btn.innerHTML="✔";
-  setTimeout(()=>btn.innerHTML="📋",1000);
+function copyText(t,el){
+  navigator.clipboard.writeText(t);
+  el.innerHTML="✔";
+  setTimeout(()=>el.innerHTML="📋",1000);
 }
 
-/* UPDATE KE SHEET */
+/* UPDATE */
 function toggleDone(nip){
   fetch(API_URL,{
     method:"POST",
-    body:JSON.stringify({
-      nip:nip,
-      tanggal:now(),
-      password:"timawakng"
-    })
-  })
-  .then(()=>location.reload());
+    body:JSON.stringify({nip:nip,tanggal:now(),password:"timawakng"})
+  }).then(()=>location.reload());
+}
+
+/* SEARCH */
+function search(v){
+  v=v.toLowerCase();
+  let list=document.getElementById("searchList");
+  list.innerHTML=data.filter(d=>d.nama.toLowerCase().includes(v))
+  .map(d=>`<div class="search-item" onclick="goTo('${d.nama}')">${d.nama}</div>`).join("");
+}
+
+function goTo(n){
+  index=data.findIndex(d=>d.nama===n);
+  document.getElementById("rekapBox").style.display="none";
+  render();
+}
+
+/* REKAP */
+function toggleRekap(){
+  let box=document.getElementById("rekapBox");
+  box.style.display=box.style.display==="block"?"none":"block";
+  renderRekap();
+}
+
+function renderRekap(){
+  document.getElementById("rekapBox").innerHTML=`
+  <div class="card">
+  <table>
+  <tr><th>No</th><th>Nama</th><th>Status</th></tr>
+  ${data.map(d=>{
+    let t=d.terakhir;
+    let isToday=t && t.startsWith(todayOnly());
+    return `
+    <tr onclick="goTo('${d.nama}')" class="${isToday?'row-today':''}">
+      <td>${d.no}</td>
+      <td>${d.nama}</td>
+      <td>${format(t)}</td>
+    </tr>`;
+  }).join("")}
+  </table></div>`;
 }
 
 /* RENDER */
@@ -182,11 +198,16 @@ function render(){
     </div>
 
     <div class="status ${isToday?'today':'old'}" onclick="toggleDone('${d.nip}')">
-      ${t ? "Terakhir Input" : "Klik untuk input hari ini"}
+      ${t?"Terakhir Input":"Klik untuk input hari ini"}
     </div>
 
-    <div class="last">
-      ${format(t)}
+    <div style="text-align:center;margin-top:6px">${format(t)}</div>
+
+    <div class="task-title" onclick="toggleTask()">📋 Task</div>
+    <div id="taskBox">
+      ${task(d.task1)}
+      ${task(d.task2)}
+      ${task(d.task3)}
     </div>
 
     <div class="nav">
@@ -197,13 +218,20 @@ function render(){
   </div>`;
 }
 
-/* NAV */
-function next(){
-  if(index<data.length-1){index++;render();}
+/* TASK */
+function task(v){
+  if(!v)return"";
+  return `<div class="task-item" onclick="copyText('${v}',this)">📋 ${v}</div>`;
 }
-function prev(){
-  if(index>0){index--;render();}
+
+function toggleTask(){
+  let e=document.getElementById("taskBox");
+  e.style.display=e.style.display==="none"?"block":"none";
 }
+
+function next(){if(index<data.length-1){index++;render();}}
+function prev(){if(index>0){index--;render();}}
+
 </script>
 
 </body>
