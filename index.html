@@ -95,7 +95,7 @@ td,th{padding:8px;border-bottom:1px solid #eee}
 </div>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbyz2FWhSfAiP6xuSjgdDk1p-BRlvvPeJl5W3oXSvxL5TNWHI0eAz7VQ1Wadee_PzqqRpg/exec";
+const API_URL="https://script.google.com/macros/s/AKfycby9WJ7zNdMjHdudilgCCrqzar-ODBLW67G5ZVs84YUIGi0g9_81vhBD6ejVmfpLQ-uWxQ/exec";
 
 let data=[],index=0,showName=false,showTask=false;
 
@@ -132,11 +132,9 @@ function copyRow(text,el){
 function toggleDone(nip){
   let t=now();
 
-  // update UI langsung
   data[index].terakhir = t;
   render();
 
-  // kirim ke server
   fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({nip:nip,tanggal:t,password:"timawakng"})
@@ -200,6 +198,11 @@ function render(){
       ${t? "Terakhir Input\n"+format(t) : "Klik untuk input hari ini"}
     </div>
 
+    <!-- ✅ TAMBAHAN TOMBOL -->
+    <div class="row" onclick="openFolder('${d.url}')">
+      📂 BUKTI KERJA
+    </div>
+
     <div class="task-title" onclick="showTask=!showTask;render()">
       Task
     </div>
@@ -217,6 +220,15 @@ function render(){
 function task(v){
   if(!v)return"";
   return `<div class="task-item" onclick="copyRow('${v}',this)">${v}</div>`;
+}
+
+/* ✅ TAMBAHAN FUNCTION */
+function openFolder(url){
+  if(!url){
+    alert("Folder belum tersedia");
+    return;
+  }
+  window.open(url);
 }
 
 </script>
