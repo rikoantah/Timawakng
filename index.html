@@ -111,7 +111,7 @@ td,th{padding:8px;border-bottom:1px solid #eee}
 const API_URL="https://script.google.com/macros/s/AKfycbxdA06SHELMmC1sqeQG4XN1kfCnhccrDrh38Gxp0jqekvW3tjlEqNmMVnjAV9mEM1WJ6g/exec";
 
 let data=[],index=0,showName=false,showTask=false;
-let editMode=false;
+let editMode=false,editIndex=-1;
 
 /* LOAD */
 fetch(API_URL).then(r=>r.json()).then(r=>{
@@ -129,17 +129,12 @@ function initials(name){
   return name.split(" ").map(x=>x[0]).join("").toUpperCase();
 }
 
-/* COPY EFFECT */
-function copyEffect(el){
-  let old=el.innerText;
-  el.innerText="✔";
-  setTimeout(()=>el.innerText=old,1000);
-}
-
 /* COPY */
 function copyRow(text,el){
   navigator.clipboard.writeText(text);
-  copyEffect(el);
+  let old=el.innerText;
+  el.innerText="✔";
+  setTimeout(()=>el.innerText=old,1000);
 }
 
 /* UPDATE */
@@ -161,7 +156,7 @@ function openFolder(url){
 }
 
 /* =========================
-   🔥 REKAP (FIX)
+   REKAP
 ========================= */
 function toggleRekap(){
   let box=document.getElementById("rekapBox");
@@ -187,8 +182,13 @@ function renderRekap(){
   </table></div>`;
 }
 
+/* 🔥 FIX PINDAH ORANG */
 function goTo(n){
   index=data.findIndex(d=>d.nama===n);
+
+  editMode=false;
+  editIndex=-1;
+
   document.getElementById("rekapBox").style.display="none";
   render();
 }
@@ -196,6 +196,7 @@ function goTo(n){
 /* EDIT CATATAN */
 function startEdit(){
   editMode=true;
+  editIndex=index;
   render();
 }
 
@@ -213,12 +214,19 @@ function saveCatatan(nip){
   }).then(()=>{
     data[index].catatan=val;
     editMode=false;
+    editIndex=-1;
     render();
   });
 }
 
 /* RENDER */
 function render(){
+
+  // 🔥 jika pindah orang saat edit → reset
+  if(editIndex !== index){
+    editMode=false;
+  }
+
   let d=data[index];
   let t=d.terakhir;
   let isToday=t && t.startsWith(todayOnly());
