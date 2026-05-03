@@ -110,32 +110,39 @@ td,th{padding:8px;border-bottom:1px solid #eee}
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbxdA06SHELMmC1sqeQG4XN1kfCnhccrDrh38Gxp0jqekvW3tjlEqNmMVnjAV9mEM1WJ6g/exec";
 
-let data=[],index=0,showName=false,showTask=false,showNote=false;
+let data=[],index=0,showName=false,showTask=false;
+let editMode=false;
 
+/* LOAD */
 fetch(API_URL).then(r=>r.json()).then(r=>{
   data=r;
   render();
 });
 
+/* UTIL */
 function now(){return new Date().toISOString();}
 function format(t){return t?new Date(t).toLocaleString("id-ID"):"-";}
 function todayOnly(){return new Date().toISOString().split("T")[0];}
 
+/* INITIAL */
 function initials(name){
   return name.split(" ").map(x=>x[0]).join("").toUpperCase();
 }
 
+/* COPY EFFECT */
 function copyEffect(el){
   let old=el.innerText;
   el.innerText="✔";
   setTimeout(()=>el.innerText=old,1000);
 }
 
+/* COPY */
 function copyRow(text,el){
   navigator.clipboard.writeText(text);
   copyEffect(el);
 }
 
+/* UPDATE */
 function toggleDone(nip){
   let t=now();
   data[index].terakhir = t;
@@ -147,31 +154,37 @@ function toggleDone(nip){
   });
 }
 
-/* 🔥 EDIT CATATAN */
-function editCatatan(nip,oldText){
-  let baru = prompt("Edit Catatan:", oldText || "");
+/* FOLDER */
+function openFolder(url){
+  if(!url){alert("Folder belum tersedia");return;}
+  window.open(url);
+}
 
-  if(baru === null) return;
+/* EDIT CATATAN */
+function startEdit(){
+  editMode=true;
+  render();
+}
+
+function saveCatatan(nip){
+  let val=document.getElementById("inputCatatan").value;
 
   fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({
       action:"catatan",
       nip:nip,
-      catatan:baru,
+      catatan:val,
       password:"timawakng"
     })
   }).then(()=>{
-    data[index].catatan = baru;
+    data[index].catatan=val;
+    editMode=false;
     render();
   });
 }
 
-function openFolder(url){
-  if(!url){alert("Folder belum tersedia");return;}
-  window.open(url);
-}
-
+/* RENDER */
 function render(){
   let d=data[index];
   let t=d.terakhir;
@@ -210,23 +223,39 @@ function render(){
       ${task(d.task3)}
     `:""}
 
-    <div class="task-title" onclick="showNote=!showNote;render()">
-      Catatan
-    </div>
+    <!-- CATATAN -->
+    <div class="task-title">Catatan</div>
 
-    ${showNote?`
-      <div class="task-item" onclick="editCatatan('${d.nip}','${d.catatan||""}')">
+    ${editMode?`
+      <textarea id="inputCatatan"
+        style="width:100%;margin-top:8px;border-radius:8px;padding:8px"
+      >${d.catatan||""}</textarea>
+
+      <div class="row" onclick="saveCatatan('${d.nip}')" style="background:#43e97b;color:#fff">
+        💾 Simpan Catatan
+      </div>
+    `:`
+      <div class="task-item"
+        onclick="startEdit()"
+        style="
+          display:-webkit-box;
+          -webkit-line-clamp:2;
+          -webkit-box-orient:vertical;
+          overflow:hidden;
+        ">
         ${d.catatan?d.catatan:"(Klik untuk tambah catatan)"}
       </div>
-    `:""}
+    `}
 
   </div>`;
 }
 
+/* TASK */
 function task(v){
   if(!v)return"";
   return `<div class="task-item" onclick="copyRow('${v}',this)">${v}</div>`;
 }
+
 </script>
 
 </body>
