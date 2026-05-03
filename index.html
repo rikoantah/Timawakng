@@ -69,6 +69,19 @@ body{margin:0;background:#f4f6fb;padding:12px}
   cursor:pointer;
 }
 
+/* CATATAN */
+.note-title{
+  margin-top:12px;text-align:center;
+  cursor:pointer;font-weight:600;
+}
+.note-item{
+  background:#fff3cd;
+  padding:10px;
+  border-radius:6px;
+  margin-top:6px;
+  font-size:14px;
+}
+
 /* TABLE */
 table{width:100%;font-size:14px}
 td,th{padding:8px;border-bottom:1px solid #eee}
@@ -95,9 +108,9 @@ td,th{padding:8px;border-bottom:1px solid #eee}
 </div>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycby9WJ7zNdMjHdudilgCCrqzar-ODBLW67G5ZVs84YUIGi0g9_81vhBD6ejVmfpLQ-uWxQ/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbwS8_DxWfq_40UyNWcZ5HGkSoaWAKMvhN7yKKQR8qAVVdzEHJx9wOsnnceUPIgPYosWKQ/exec";
 
-let data=[],index=0,showName=false,showTask=false;
+let data=[],index=0,showName=false,showTask=false,showNote=false;
 
 /* LOAD */
 fetch(API_URL).then(r=>r.json()).then(r=>{
@@ -128,10 +141,9 @@ function copyRow(text,el){
   copyEffect(el);
 }
 
-/* UPDATE (REALTIME UI) */
+/* UPDATE */
 function toggleDone(nip){
   let t=now();
-
   data[index].terakhir = t;
   render();
 
@@ -198,7 +210,6 @@ function render(){
       ${t? "Terakhir Input\n"+format(t) : "Klik untuk input hari ini"}
     </div>
 
-    <!-- ✅ TAMBAHAN TOMBOL -->
     <div class="row" onclick="openFolder('${d.url}')">
       📂 BUKTI KERJA
     </div>
@@ -213,6 +224,14 @@ function render(){
       ${task(d.task3)}
     `:""}
 
+    <div class="note-title" onclick="showNote=!showNote;render()">
+      Catatan
+    </div>
+
+    ${showNote && d.catatan ? `
+      <div class="note-item">${d.catatan}</div>
+    ` : ""}
+
   </div>`;
 }
 
@@ -222,7 +241,7 @@ function task(v){
   return `<div class="task-item" onclick="copyRow('${v}',this)">${v}</div>`;
 }
 
-/* ✅ TAMBAHAN FUNCTION */
+/* FOLDER */
 function openFolder(url){
   if(!url){
     alert("Folder belum tersedia");
