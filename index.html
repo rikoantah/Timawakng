@@ -160,6 +160,39 @@ function openFolder(url){
   window.open(url);
 }
 
+/* =========================
+   🔥 REKAP (FIX)
+========================= */
+function toggleRekap(){
+  let box=document.getElementById("rekapBox");
+  box.style.display=box.style.display==="block"?"none":"block";
+  renderRekap();
+}
+
+function renderRekap(){
+  document.getElementById("rekapBox").innerHTML=`
+  <div class="card">
+  <table>
+  <tr><th>No</th><th>Nama</th><th>Status</th></tr>
+  ${data.map(d=>{
+    let t=d.terakhir;
+    let isToday=t && t.startsWith(todayOnly());
+    return `
+    <tr onclick="goTo('${d.nama}')" class="${isToday?'row-today':''}">
+      <td>${d.no}</td>
+      <td>${d.nama}</td>
+      <td>${format(t)}</td>
+    </tr>`;
+  }).join("")}
+  </table></div>`;
+}
+
+function goTo(n){
+  index=data.findIndex(d=>d.nama===n);
+  document.getElementById("rekapBox").style.display="none";
+  render();
+}
+
 /* EDIT CATATAN */
 function startEdit(){
   editMode=true;
@@ -223,7 +256,6 @@ function render(){
       ${task(d.task3)}
     `:""}
 
-    <!-- CATATAN -->
     <div class="task-title">Catatan</div>
 
     ${editMode?`
