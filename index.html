@@ -112,6 +112,7 @@ const API_URL="https://script.google.com/macros/s/AKfycbxdA06SHELMmC1sqeQG4XN1kf
 
 let data=[],index=0,showName=false,showTask=false;
 let editMode=false,editIndex=-1;
+let modeRekap="status"; // 🔥 tambahan mode
 
 /* LOAD */
 fetch(API_URL).then(r=>r.json()).then(r=>{
@@ -164,31 +165,65 @@ function toggleRekap(){
   renderRekap();
 }
 
-function renderRekap(){
-  document.getElementById("rekapBox").innerHTML=`
-  <div class="card">
-  <table>
-  <tr><th>No</th><th>Nama</th><th>Status</th></tr>
-  ${data.map(d=>{
-    let t=d.terakhir;
-    let isToday=t && t.startsWith(todayOnly());
-    return `
-    <tr onclick="goTo('${d.nama}')" class="${isToday?'row-today':''}">
-      <td>${d.no}</td>
-      <td>${d.nama}</td>
-      <td>${format(t)}</td>
-    </tr>`;
-  }).join("")}
-  </table></div>`;
+function switchMode(m){
+  modeRekap=m;
+  renderRekap();
 }
 
-/* 🔥 FIX PINDAH ORANG */
+function renderRekap(){
+
+  let content="";
+
+  if(modeRekap==="status"){
+    content=`
+    <table>
+    <tr><th>No</th><th>Nama</th><th>Status</th></tr>
+    ${data.map(d=>{
+      let t=d.terakhir;
+      let isToday=t && t.startsWith(todayOnly());
+      return `
+      <tr onclick="goTo('${d.nama}')" class="${isToday?'row-today':''}">
+        <td>${d.no}</td>
+        <td>${d.nama}</td>
+        <td>${format(t)}</td>
+      </tr>`;
+    }).join("")}
+    </table>`;
+  }
+
+  if(modeRekap==="catatan"){
+    content=`
+    <table>
+    <tr><th>No</th><th>Nama</th><th>Catatan</th></tr>
+    ${data.map(d=>{
+      return `
+      <tr onclick="goTo('${d.nama}')">
+        <td>${d.no}</td>
+        <td>${d.nama}</td>
+        <td>${d.catatan||"-"}</td>
+      </tr>`;
+    }).join("")}
+    </table>`;
+  }
+
+  document.getElementById("rekapBox").innerHTML=`
+  <div class="card">
+
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <button class="btn-rekap" onclick="switchMode('status')" style="background:#4facfe">Status</button>
+      <button class="btn-rekap" onclick="switchMode('catatan')" style="background:#f093fb">Catatan</button>
+    </div>
+
+    ${content}
+
+  </div>`;
+}
+
+/* PINDAH */
 function goTo(n){
   index=data.findIndex(d=>d.nama===n);
-
   editMode=false;
   editIndex=-1;
-
   document.getElementById("rekapBox").style.display="none";
   render();
 }
@@ -222,7 +257,6 @@ function saveCatatan(nip){
 /* RENDER */
 function render(){
 
-  // 🔥 jika pindah orang saat edit → reset
   if(editIndex !== index){
     editMode=false;
   }
