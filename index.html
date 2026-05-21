@@ -110,8 +110,15 @@ td,th{padding:8px;border-bottom:1px solid #eee}
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbwlizSN_oNsWcwxdJIyUlbP1BpwBR-0MiNb-F2D3Qtbv4H3sBKc9hc0BCOQyPBXX8pxng/exec";
 
-let data=[],index=0,showName=false,showTask=false;
-let editMode=false,editIndex=-1;
+let data=[];
+let index=0;
+
+let showName=false;
+let showTask=false;
+
+let editMode=false;
+let editIndex=-1;
+
 let modeRekap="status";
 
 /* =========================
@@ -121,10 +128,16 @@ fetch(API_URL)
 .then(r=>r.json())
 .then(r=>{
 
-  // SORT PALING LAMA DI ATAS
   data = r.sort((a,b)=>{
-    let ta = a.terakhir ? new Date(a.terakhir).getTime() : 0;
-    let tb = b.terakhir ? new Date(b.terakhir).getTime() : 0;
+
+    let ta = a.terakhir
+      ? new Date(a.terakhir).getTime()
+      : 0;
+
+    let tb = b.terakhir
+      ? new Date(b.terakhir).getTime()
+      : 0;
+
     return ta - tb;
   });
 
@@ -139,7 +152,9 @@ function now(){
 }
 
 function format(t){
-  return t ? new Date(t).toLocaleString("id-ID") : "-";
+  return t
+    ? new Date(t).toLocaleString("id-ID")
+    : "-";
 }
 
 function todayOnly(){
@@ -147,11 +162,15 @@ function todayOnly(){
 }
 
 function initials(name){
-  return name.split(" ").map(x=>x[0]).join("").toUpperCase();
+  return name
+    .split(" ")
+    .map(x=>x[0])
+    .join("")
+    .toUpperCase();
 }
 
 /* =========================
-   HITUNG HARI
+   SELISIH HARI
 ========================= */
 function diffDays(dateString){
 
@@ -162,7 +181,9 @@ function diffDays(dateString){
 
   let diff = nowDate - oldDate;
 
-  return Math.floor(diff / (1000*60*60*24));
+  return Math.floor(
+    diff / (1000*60*60*24)
+  );
 }
 
 /* =========================
@@ -172,21 +193,21 @@ function copyRow(text,el){
 
   navigator.clipboard.writeText(text);
 
-  let old=el.innerText;
+  let old = el.innerText;
 
-  el.innerText="✔";
+  el.innerText = "✔";
 
   setTimeout(()=>{
-    el.innerText=old;
+    el.innerText = old;
   },1000);
 }
 
 /* =========================
-   UPDATE STATUS
+   UPDATE
 ========================= */
 function toggleDone(nip){
 
-  let t=now();
+  let t = now();
 
   data[index].terakhir = t;
 
@@ -201,17 +222,23 @@ function toggleDone(nip){
 
     // SORT ULANG
     data.sort((a,b)=>{
-      let ta = a.terakhir ? new Date(a.terakhir).getTime() : 0;
-      let tb = b.terakhir ? new Date(b.terakhir).getTime() : 0;
+
+      let ta = a.terakhir
+        ? new Date(a.terakhir).getTime()
+        : 0;
+
+      let tb = b.terakhir
+        ? new Date(b.terakhir).getTime()
+        : 0;
+
       return ta - tb;
     });
 
-    // PINDAH KE PALING BAWAH
+    // CARI INDEX BARU
     index = data.findIndex(x=>x.nip===nip);
 
     render();
   });
-
 }
 
 /* =========================
@@ -228,18 +255,45 @@ function openFolder(url){
 }
 
 /* =========================
+   NAVIGASI
+========================= */
+function nextData(){
+
+  if(index < data.length-1){
+    index++;
+    render();
+  }
+}
+
+function prevData(){
+
+  if(index > 0){
+    index--;
+    render();
+  }
+}
+
+/* =========================
    REKAP
 ========================= */
 function toggleRekap(){
 
   let box=document.getElementById("rekapBox");
 
-  box.style.display=
-    box.style.display==="block"
-    ?"none"
-    :"block";
+  if(box.style.display==="block"){
 
-  renderRekap();
+    box.style.display="none";
+
+    document.getElementById("app").style.display="block";
+
+  }else{
+
+    box.style.display="block";
+
+    document.getElementById("app").style.display="none";
+
+    renderRekap();
+  }
 }
 
 function switchMode(m){
@@ -264,7 +318,7 @@ function renderRekap(){
         <th>Status</th>
       </tr>
 
-      ${data.map(d=>{
+      ${data.map((d,i)=>{
 
         let t=d.terakhir;
 
@@ -277,11 +331,13 @@ function renderRekap(){
           : '';
 
         return `
-        <tr onclick="goTo('${d.nama}')"
-            class="${isToday?'row-today':''}"
-            ${red}>
+        <tr
+          onclick="goTo('${d.nama}')"
+          class="${isToday?'row-today':''}"
+          ${red}
+        >
 
-          <td>${d.no}</td>
+          <td>${i+1}</td>
           <td>${d.nama}</td>
           <td>${format(t)}</td>
 
@@ -302,7 +358,7 @@ function renderRekap(){
         <th>Catatan</th>
       </tr>
 
-      ${data.map(d=>{
+      ${data.map((d,i)=>{
 
         let days = diffDays(d.terakhir);
 
@@ -311,10 +367,12 @@ function renderRekap(){
           : '';
 
         return `
-        <tr onclick="goTo('${d.nama}')"
-            ${red}>
+        <tr
+          onclick="goTo('${d.nama}')"
+          ${red}
+        >
 
-          <td>${d.no}</td>
+          <td>${i+1}</td>
           <td>${d.nama}</td>
           <td>${d.catatan||"-"}</td>
 
@@ -328,18 +386,28 @@ function renderRekap(){
 
   <div class="card">
 
-    <div style="display:flex;gap:6px;margin-bottom:10px">
+    <div style="
+      display:flex;
+      gap:6px;
+      margin-bottom:10px
+    ">
 
-      <button class="btn-rekap"
+      <button
+        class="btn-rekap"
         onclick="switchMode('status')"
         style="background:#4facfe">
+
         Status
+
       </button>
 
-      <button class="btn-rekap"
+      <button
+        class="btn-rekap"
         onclick="switchMode('catatan')"
         style="background:#f093fb">
+
         Catatan
+
       </button>
 
     </div>
@@ -350,17 +418,19 @@ function renderRekap(){
 }
 
 /* =========================
-   PINDAH
+   PINDAH DARI REKAP
 ========================= */
 function goTo(n){
 
   index=data.findIndex(d=>d.nama===n);
 
+  document.getElementById("rekapBox").style.display="none";
+
+  document.getElementById("app").style.display="block";
+
   editMode=false;
 
   editIndex=-1;
-
-  document.getElementById("rekapBox").style.display="none";
 
   render();
 }
@@ -426,28 +496,71 @@ function render(){
 
   <div class="card">
 
-    <div class="name"
+    <!-- NAV -->
+    <div style="
+      display:flex;
+      gap:8px;
+      margin-bottom:10px
+    ">
+
+      <button
+        class="btn-rekap"
+        onclick="prevData()"
+        style="background:#607d8b">
+
+        ⬅ PREV
+
+      </button>
+
+      <button
+        class="btn-rekap"
+        onclick="nextData()"
+        style="background:#2196f3">
+
+        NEXT ➡
+
+      </button>
+
+    </div>
+
+    <div
+      style="
+        text-align:center;
+        margin-bottom:8px;
+        font-size:13px;
+        color:#666;
+      ">
+
+      ${index+1} / ${data.length}
+
+    </div>
+
+    <div
+      class="name"
       onclick="showName=!showName;render()">
 
       ${showName?d.nama:initials(d.nama)}
 
     </div>
 
-    <div class="row"
+    <div
+      class="row"
       onclick="copyRow('${d.nip}',this)">
 
       NIP ***
 
     </div>
 
-    <div class="row"
+    <div
+      class="row"
       onclick="copyRow('${d.password}',this)">
 
       PASSWORD ***
 
     </div>
 
-    <div class="status ${isToday?'today':''}"
+    <div
+      class="status ${isToday?'today':''}"
       style="${redStyle}"
       onclick="toggleDone('${d.nip}')">
 
@@ -461,14 +574,16 @@ function render(){
 
     </div>
 
-    <div class="row"
+    <div
+      class="row"
       onclick="openFolder('${d.url}')">
 
       📂 BUKTI KERJA
 
     </div>
 
-    <div class="task-title"
+    <div
+      class="task-title"
       onclick="showTask=!showTask;render()">
 
       Task
@@ -481,17 +596,31 @@ function render(){
       ${task(d.task3)}
     `:""}
 
-    <div class="task-title">Catatan</div>
+    <div class="task-title">
+      Catatan
+    </div>
 
     ${editMode?`
 
-      <textarea id="inputCatatan"
-        style="width:100%;margin-top:8px;border-radius:8px;padding:8px"
+      <textarea
+        id="inputCatatan"
+
+        style="
+          width:100%;
+          margin-top:8px;
+          border-radius:8px;
+          padding:8px
+        "
+
       >${d.catatan||""}</textarea>
 
-      <div class="row"
+      <div
+        class="row"
         onclick="saveCatatan('${d.nip}')"
-        style="background:#43e97b;color:#fff">
+        style="
+          background:#43e97b;
+          color:#fff
+        ">
 
         💾 Simpan Catatan
 
@@ -499,7 +628,8 @@ function render(){
 
     `:`
 
-      <div class="task-item"
+      <div
+        class="task-item"
 
         onclick="startEdit()"
 
@@ -529,7 +659,8 @@ function task(v){
   if(!v) return "";
 
   return `
-  <div class="task-item"
+  <div
+    class="task-item"
     onclick="copyRow('${v}',this)">
 
     ${v}
