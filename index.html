@@ -112,47 +112,118 @@ const API_URL="https://script.google.com/macros/s/AKfycbwlizSN_oNsWcwxdJIyUlbP1B
 
 let data=[],index=0,showName=false,showTask=false;
 let editMode=false,editIndex=-1;
-let modeRekap="status"; // 🔥 tambahan mode
+let modeRekap="status";
 
-/* LOAD */
-fetch(API_URL).then(r=>r.json()).then(r=>{
-  data=r;
+/* =========================
+   LOAD
+========================= */
+fetch(API_URL)
+.then(r=>r.json())
+.then(r=>{
+
+  // SORT PALING LAMA DI ATAS
+  data = r.sort((a,b)=>{
+    let ta = a.terakhir ? new Date(a.terakhir).getTime() : 0;
+    let tb = b.terakhir ? new Date(b.terakhir).getTime() : 0;
+    return ta - tb;
+  });
+
   render();
 });
 
-/* UTIL */
-function now(){return new Date().toISOString();}
-function format(t){return t?new Date(t).toLocaleString("id-ID"):"-";}
-function todayOnly(){return new Date().toISOString().split("T")[0];}
+/* =========================
+   UTIL
+========================= */
+function now(){
+  return new Date().toISOString();
+}
 
-/* INITIAL */
+function format(t){
+  return t ? new Date(t).toLocaleString("id-ID") : "-";
+}
+
+function todayOnly(){
+  return new Date().toISOString().split("T")[0];
+}
+
 function initials(name){
   return name.split(" ").map(x=>x[0]).join("").toUpperCase();
 }
 
-/* COPY */
-function copyRow(text,el){
-  navigator.clipboard.writeText(text);
-  let old=el.innerText;
-  el.innerText="✔";
-  setTimeout(()=>el.innerText=old,1000);
+/* =========================
+   HITUNG HARI
+========================= */
+function diffDays(dateString){
+
+  if(!dateString) return 999;
+
+  let oldDate = new Date(dateString);
+  let nowDate = new Date();
+
+  let diff = nowDate - oldDate;
+
+  return Math.floor(diff / (1000*60*60*24));
 }
 
-/* UPDATE */
+/* =========================
+   COPY
+========================= */
+function copyRow(text,el){
+
+  navigator.clipboard.writeText(text);
+
+  let old=el.innerText;
+
+  el.innerText="✔";
+
+  setTimeout(()=>{
+    el.innerText=old;
+  },1000);
+}
+
+/* =========================
+   UPDATE STATUS
+========================= */
 function toggleDone(nip){
+
   let t=now();
+
   data[index].terakhir = t;
-  render();
 
   fetch(API_URL,{
     method:"POST",
-    body:JSON.stringify({nip:nip,tanggal:t,password:"timawakng"})
+    body:JSON.stringify({
+      nip:nip,
+      tanggal:t,
+      password:"timawakng"
+    })
+  }).then(()=>{
+
+    // SORT ULANG
+    data.sort((a,b)=>{
+      let ta = a.terakhir ? new Date(a.terakhir).getTime() : 0;
+      let tb = b.terakhir ? new Date(b.terakhir).getTime() : 0;
+      return ta - tb;
+    });
+
+    // PINDAH KE PALING BAWAH
+    index = data.findIndex(x=>x.nip===nip);
+
+    render();
   });
+
 }
 
-/* FOLDER */
+/* =========================
+   FOLDER
+========================= */
 function openFolder(url){
-  if(!url){alert("Folder belum tersedia");return;}
+
+  if(!url){
+    alert("Folder belum tersedia");
+    return;
+  }
+
   window.open(url);
 }
 
@@ -160,13 +231,21 @@ function openFolder(url){
    REKAP
 ========================= */
 function toggleRekap(){
+
   let box=document.getElementById("rekapBox");
-  box.style.display=box.style.display==="block"?"none":"block";
+
+  box.style.display=
+    box.style.display==="block"
+    ?"none"
+    :"block";
+
   renderRekap();
 }
 
 function switchMode(m){
+
   modeRekap=m;
+
   renderRekap();
 }
 
@@ -175,43 +254,94 @@ function renderRekap(){
   let content="";
 
   if(modeRekap==="status"){
+
     content=`
     <table>
-    <tr><th>No</th><th>Nama</th><th>Status</th></tr>
-    ${data.map(d=>{
-      let t=d.terakhir;
-      let isToday=t && t.startsWith(todayOnly());
-      return `
-      <tr onclick="goTo('${d.nama}')" class="${isToday?'row-today':''}">
-        <td>${d.no}</td>
-        <td>${d.nama}</td>
-        <td>${format(t)}</td>
-      </tr>`;
-    }).join("")}
+
+      <tr>
+        <th>No</th>
+        <th>Nama</th>
+        <th>Status</th>
+      </tr>
+
+      ${data.map(d=>{
+
+        let t=d.terakhir;
+
+        let isToday=t && t.startsWith(todayOnly());
+
+        let days = diffDays(t);
+
+        let red = days > 5
+          ? 'style="background:#ffebee;color:#c62828;font-weight:bold"'
+          : '';
+
+        return `
+        <tr onclick="goTo('${d.nama}')"
+            class="${isToday?'row-today':''}"
+            ${red}>
+
+          <td>${d.no}</td>
+          <td>${d.nama}</td>
+          <td>${format(t)}</td>
+
+        </tr>`;
+      }).join("")}
+
     </table>`;
   }
 
   if(modeRekap==="catatan"){
+
     content=`
     <table>
-    <tr><th>No</th><th>Nama</th><th>Catatan</th></tr>
-    ${data.map(d=>{
-      return `
-      <tr onclick="goTo('${d.nama}')">
-        <td>${d.no}</td>
-        <td>${d.nama}</td>
-        <td>${d.catatan||"-"}</td>
-      </tr>`;
-    }).join("")}
+
+      <tr>
+        <th>No</th>
+        <th>Nama</th>
+        <th>Catatan</th>
+      </tr>
+
+      ${data.map(d=>{
+
+        let days = diffDays(d.terakhir);
+
+        let red = days > 5
+          ? 'style="background:#ffebee;color:#c62828;font-weight:bold"'
+          : '';
+
+        return `
+        <tr onclick="goTo('${d.nama}')"
+            ${red}>
+
+          <td>${d.no}</td>
+          <td>${d.nama}</td>
+          <td>${d.catatan||"-"}</td>
+
+        </tr>`;
+      }).join("")}
+
     </table>`;
   }
 
   document.getElementById("rekapBox").innerHTML=`
+
   <div class="card">
 
     <div style="display:flex;gap:6px;margin-bottom:10px">
-      <button class="btn-rekap" onclick="switchMode('status')" style="background:#4facfe">Status</button>
-      <button class="btn-rekap" onclick="switchMode('catatan')" style="background:#f093fb">Catatan</button>
+
+      <button class="btn-rekap"
+        onclick="switchMode('status')"
+        style="background:#4facfe">
+        Status
+      </button>
+
+      <button class="btn-rekap"
+        onclick="switchMode('catatan')"
+        style="background:#f093fb">
+        Catatan
+      </button>
+
     </div>
 
     ${content}
@@ -219,23 +349,36 @@ function renderRekap(){
   </div>`;
 }
 
-/* PINDAH */
+/* =========================
+   PINDAH
+========================= */
 function goTo(n){
+
   index=data.findIndex(d=>d.nama===n);
+
   editMode=false;
+
   editIndex=-1;
+
   document.getElementById("rekapBox").style.display="none";
+
   render();
 }
 
-/* EDIT CATATAN */
+/* =========================
+   EDIT CATATAN
+========================= */
 function startEdit(){
+
   editMode=true;
+
   editIndex=index;
+
   render();
 }
 
 function saveCatatan(nip){
+
   let val=document.getElementById("inputCatatan").value;
 
   fetch(API_URL,{
@@ -247,14 +390,20 @@ function saveCatatan(nip){
       password:"timawakng"
     })
   }).then(()=>{
+
     data[index].catatan=val;
+
     editMode=false;
+
     editIndex=-1;
+
     render();
   });
 }
 
-/* RENDER */
+/* =========================
+   RENDER
+========================= */
 function render(){
 
   if(editIndex !== index){
@@ -262,34 +411,68 @@ function render(){
   }
 
   let d=data[index];
+
   let t=d.terakhir;
+
   let isToday=t && t.startsWith(todayOnly());
 
+  let days = diffDays(t);
+
+  let redStyle = days > 5
+    ? "background:#ffebee;color:#c62828"
+    : "";
+
   document.getElementById("app").innerHTML=`
+
   <div class="card">
 
-    <div class="name" onclick="showName=!showName;render()">
+    <div class="name"
+      onclick="showName=!showName;render()">
+
       ${showName?d.nama:initials(d.nama)}
+
     </div>
 
-    <div class="row" onclick="copyRow('${d.nip}',this)">
+    <div class="row"
+      onclick="copyRow('${d.nip}',this)">
+
       NIP ***
+
     </div>
 
-    <div class="row" onclick="copyRow('${d.password}',this)">
+    <div class="row"
+      onclick="copyRow('${d.password}',this)">
+
       PASSWORD ***
+
     </div>
 
-    <div class="status ${isToday?'today':''}" onclick="toggleDone('${d.nip}')">
-      ${t? "Terakhir Input\n"+format(t) : "Klik untuk input hari ini"}
+    <div class="status ${isToday?'today':''}"
+      style="${redStyle}"
+      onclick="toggleDone('${d.nip}')">
+
+      ${t
+        ? "Terakhir Input<br>"+format(t)
+        : "Klik untuk input hari ini"}
+
+      ${days>5
+        ? "<br><b>⚠ Belum dikerjakan lebih dari 5 hari</b>"
+        : ""}
+
     </div>
 
-    <div class="row" onclick="openFolder('${d.url}')">
+    <div class="row"
+      onclick="openFolder('${d.url}')">
+
       📂 BUKTI KERJA
+
     </div>
 
-    <div class="task-title" onclick="showTask=!showTask;render()">
+    <div class="task-title"
+      onclick="showTask=!showTask;render()">
+
       Task
+
     </div>
 
     ${showTask?`
@@ -301,33 +484,57 @@ function render(){
     <div class="task-title">Catatan</div>
 
     ${editMode?`
+
       <textarea id="inputCatatan"
         style="width:100%;margin-top:8px;border-radius:8px;padding:8px"
       >${d.catatan||""}</textarea>
 
-      <div class="row" onclick="saveCatatan('${d.nip}')" style="background:#43e97b;color:#fff">
+      <div class="row"
+        onclick="saveCatatan('${d.nip}')"
+        style="background:#43e97b;color:#fff">
+
         💾 Simpan Catatan
+
       </div>
+
     `:`
+
       <div class="task-item"
+
         onclick="startEdit()"
+
         style="
           display:-webkit-box;
           -webkit-line-clamp:2;
           -webkit-box-orient:vertical;
           overflow:hidden;
         ">
-        ${d.catatan?d.catatan:"(Klik untuk tambah catatan)"}
+
+        ${d.catatan
+          ? d.catatan
+          : "(Klik untuk tambah catatan)"}
+
       </div>
+
     `}
 
   </div>`;
 }
 
-/* TASK */
+/* =========================
+   TASK
+========================= */
 function task(v){
-  if(!v)return"";
-  return `<div class="task-item" onclick="copyRow('${v}',this)">${v}</div>`;
+
+  if(!v) return "";
+
+  return `
+  <div class="task-item"
+    onclick="copyRow('${v}',this)">
+
+    ${v}
+
+  </div>`;
 }
 
 </script>
