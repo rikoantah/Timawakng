@@ -207,13 +207,14 @@ function toggleDone(nip){
       tanggal:t,
       password:"timawakng"
     })
-.then(()=>{
+  }).then(()=>{
 
-  // CARI INDEX BARU
-  index = data.findIndex(x=>x.nip===nip);
+    // CARI INDEX BARU
+    index = data.findIndex(x=>x.nip===nip);
 
-  render();
-});
+    render();
+
+  });
 }
 
 /* =========================
