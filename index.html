@@ -128,18 +128,7 @@ fetch(API_URL)
 .then(r=>r.json())
 .then(r=>{
 
-  data = r.sort((a,b)=>{
-
-    let ta = a.terakhir
-      ? new Date(a.terakhir).getTime()
-      : 0;
-
-    let tb = b.terakhir
-      ? new Date(b.terakhir).getTime()
-      : 0;
-
-    return ta - tb;
-  });
+  data = r;
 
   render();
 });
@@ -218,27 +207,13 @@ function toggleDone(nip){
       tanggal:t,
       password:"timawakng"
     })
-  }).then(()=>{
+.then(()=>{
 
-    // SORT ULANG
-    data.sort((a,b)=>{
+  // CARI INDEX BARU
+  index = data.findIndex(x=>x.nip===nip);
 
-      let ta = a.terakhir
-        ? new Date(a.terakhir).getTime()
-        : 0;
-
-      let tb = b.terakhir
-        ? new Date(b.terakhir).getTime()
-        : 0;
-
-      return ta - tb;
-    });
-
-    // CARI INDEX BARU
-    index = data.findIndex(x=>x.nip===nip);
-
-    render();
-  });
+  render();
+});
 }
 
 /* =========================
