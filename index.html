@@ -643,17 +643,7 @@ function task(v){
 
   </div>`;
 }
-const APP_PASSWORD = "777";
 
-if (!sessionStorage.getItem("login")) {
-    const input = prompt("Masukkan Password");
-    if (input === APP_PASSWORD) {
-        sessionStorage.setItem("login", "true");
-    } else {
-        document.body.innerHTML = "<h2 style='text-align:center;margin-top:100px'>Password Salah</h2>";
-        throw new Error("Akses ditolak");
-    }
-}
 </script>
 
 </body>
