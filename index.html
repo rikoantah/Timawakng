@@ -22,7 +22,7 @@
 <script>
 'use strict';
 // GANTI hanya URL di bawah dengan URL deployment Apps Script BARU (akhiran /exec).
-const API_URL='GANTI_DENGAN_URL_WEB_APP_GAS';
+const API_URL='https://script.google.com/macros/s/AKfycbwlizSN_oNsWcwxdJIyUlbP1BpwBR-0MiNb-F2D3Qtbv4H3sBKc9hc0BCOQyPBXX8pxng/exec';
 let data=[],idx=0,showName=false,page='detail',taskOpen=false,tab='status',editAction='tarif',saving=false;
 const $=id=>document.getElementById(id),hide=(id,yes)=>$(id).classList.toggle('hide',yes);
 const rupiah=x=>'Rp'+Number(x||0).toLocaleString('id-ID');
