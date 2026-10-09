@@ -64,7 +64,25 @@ function renderRecap(){const today=data.filter(x=>diff(x.terakhir)===0).length,l
 function navigate(delta){idx=Math.min(data.length-1,Math.max(0,idx+delta));showName=false;showTarif=false;taskOpen=false;render()}
 function copy(v){navigator.clipboard?.writeText(String(v??'')).then(()=>toast('Berhasil disalin')).catch(()=>toast('Penyalinan tidak didukung browser ini'))}
 function openModal(action){editAction=action;const d=data[idx];$('modalTitle').textContent=action==='tarif'?'Ubah Tarif':'Konfirmasi Input';$('modalDesc').textContent=action==='tarif'?'Ubah tarif untuk '+d.nama+'. Nilai disimpan ke kolom N.':'Tandai input aktivitas hari ini untuk '+d.nama+'?';hide('modalValue',action!=='tarif');hide('valueLabel',action!=='tarif');$('modalValue').value=Number(d.tarif||0);$('pin').value='';hide('modalBack',false);(action==='tarif'?$('modalValue'):$('pin')).focus()}
+// Klik status: langsung simpan tanggal ke GAS tanpa dialog dan tanpa PIN.
+async function markDirect(){
+  if(saving)return;
+  const d=data[idx];
+  saving=true;
+  $('mark').disabled=true;
+  $('mark').textContent='Menyimpan...';
+  try{
+    const res=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'tanggal',nip:d.nip})});
+    if(!res.ok)throw Error('HTTP '+res.status);
+    const j=await res.json();
+    if(!j.ok)throw Error(j.error||'Gagal menyimpan');
+    d.terakhir=j.terakhir;
+    render();
+    toast('Input hari ini berhasil diperbarui');
+  }catch(e){toast('Gagal: '+e.message)}
+  finally{saving=false;$('mark').disabled=false;$('mark').textContent='✓ Input'}
+}
 async function save(){if(saving)return;const d=data[idx],pin=$('pin').value.trim();if(!pin){toast('Masukkan PIN Admin');return}const body={action:editAction,nip:d.nip,pin};if(editAction==='tarif'){const v=Number($('modalValue').value);if(!Number.isSafeInteger(v)||v<0||v>1e12){toast('Tarif harus angka bulat 0 sampai 1 triliun');return}body.tarif=v}
  saving=true;$('save').disabled=true;$('save').textContent='Menyimpan...';try{const res=await fetch(API_URL,{method:'POST',body:JSON.stringify(body)});if(!res.ok)throw Error('HTTP '+res.status);const j=await res.json();if(!j.ok)throw Error(j.error||'Gagal menyimpan');if(editAction==='tarif')d.tarif=j.tarif;else d.terakhir=j.terakhir;hide('modalBack',true);render();toast('Berhasil disimpan ke Google Sheets')}catch(e){toast('Gagal: '+e.message)}finally{saving=false;$('save').disabled=false;$('save').textContent='Simpan'}}
-$('revealTarif').onclick=()=>{showTarif=!showTarif;render()};$('revealTotal').onclick=()=>{showTotal=!showTotal;renderRecap()};$('recapBtn').onclick=()=>{page=page==='detail'?'recap':'detail';showTarif=false;showTotal=false;revealedRows.clear();render()};$('back').onclick=()=>{page='detail';render()};$('prev').onclick=()=>navigate(-1);$('next').onclick=()=>navigate(1);$('name').onclick=()=>{showName=!showName;render()};$('copyNip').onclick=()=>copy(data[idx].nip);$('copyPass').onclick=()=>copy(data[idx].password);$('folder').onclick=()=>{let u=data[idx].url;if(/^https:\/\//i.test(u))window.open(u,'_blank','noopener');else toast('Folder belum tersedia')};$('mark').onclick=()=>openModal('tanggal');$('editTarif').onclick=()=>openModal('tarif');$('taskToggle').onclick=()=>{taskOpen=!taskOpen;render()};$('tabStatus').onclick=()=>{tab='status';renderRecap()};$('tabTarif').onclick=()=>{tab='tarif';renderRecap()};$('cancel').onclick=()=>hide('modalBack',true);$('save').onclick=save;$('modalBack').onclick=e=>{if(e.target===$('modalBack'))hide('modalBack',true)};load();
+$('revealTarif').onclick=()=>{showTarif=!showTarif;render()};$('revealTotal').onclick=()=>{showTotal=!showTotal;renderRecap()};$('recapBtn').onclick=()=>{page=page==='detail'?'recap':'detail';showTarif=false;showTotal=false;revealedRows.clear();render()};$('back').onclick=()=>{page='detail';render()};$('prev').onclick=()=>navigate(-1);$('next').onclick=()=>navigate(1);$('name').onclick=()=>{showName=!showName;render()};$('copyNip').onclick=()=>copy(data[idx].nip);$('copyPass').onclick=()=>copy(data[idx].password);$('folder').onclick=()=>{let u=data[idx].url;if(/^https:\/\//i.test(u))window.open(u,'_blank','noopener');else toast('Folder belum tersedia')};$('mark').onclick=()=>markDirect();$('editTarif').onclick=()=>openModal('tarif');$('taskToggle').onclick=()=>{taskOpen=!taskOpen;render()};$('tabStatus').onclick=()=>{tab='status';renderRecap()};$('tabTarif').onclick=()=>{tab='tarif';renderRecap()};$('cancel').onclick=()=>hide('modalBack',true);$('save').onclick=save;$('modalBack').onclick=e=>{if(e.target===$('modalBack'))hide('modalBack',true)};load();
 </script></body></html>
